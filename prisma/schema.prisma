@@ -1,0 +1,426 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model PensionCompanyInfo {
+  companyName              String                @map("company_name") @db.NVarChar(50)
+  baseDate                 Date                  @map("base_date") @db.Date
+  companyBondRating        String                @map("company_bond_rating") @db.NVarChar(50)
+  salaryEstimationMethod   Int                   @map("salary_estimation_method") @db.SmallInt
+  yearsAddedOverRetirement Int?                  @map("years_added_over_retirement") @db.SmallInt
+  isUnder300Employees      Int                   @map("is_under_300_employees") @db.SmallInt
+  employeeInfo             PensionEmployeeInfo[]
+  jobTypeInfo              PensionJobTypeInfo[]
+
+  @@id([companyName, baseDate], map: "PK__pension___B06B5128C1BE334D")
+  @@map("pension_company_info")
+}
+
+model PensionJobTypeInfo {
+  companyName   String                @map("company_name") @db.NVarChar(50)
+  baseDate      Date                  @map("base_date") @db.Date
+  jobType       Int                   @map("job_type") @db.SmallInt
+  jobTypeName   String                @map("job_type_name") @db.NVarChar(50)
+  retirementAge Int                   @map("retirement_age") @db.SmallInt
+  baseUp        Decimal               @map("base_up") @db.Decimal(5, 2)
+  employeeInfo  PensionEmployeeInfo[]
+  company       PensionCompanyInfo    @relation(fields: [companyName, baseDate], references: [companyName, baseDate], onUpdate: NoAction, map: "FK__pension_job_type__44952D46")
+
+  @@id([companyName, baseDate, jobType], map: "PK__pension___EBEE834EE08C74A3")
+  @@map("pension_job_type_info")
+}
+
+model PensionEmployeeInfo {
+  companyName           String             @map("company_name") @db.NVarChar(50)
+  baseDate              Date               @map("base_date") @db.Date
+  employeeId            String             @map("employee_id") @db.NVarChar(50)
+  gender                Int                @map("gender") @db.SmallInt
+  birthDate             Date               @map("birth_date") @db.Date
+  hireDate              Date               @map("hire_date") @db.Date
+  calculationStartDate  Date               @map("calculation_start_date") @db.Date
+  averageSalary         Decimal            @map("average_salary") @db.Decimal(12, 2)
+  jobType               Int                @map("job_type") @db.SmallInt
+  paymentMultiplier     Decimal            @map("payment_multiplier") @db.Decimal(5, 2)
+  estimatedSeverancePay Decimal?           @map("estimated_severance_pay") @db.Decimal(12, 2)
+  company               PensionCompanyInfo @relation(fields: [companyName, baseDate], references: [companyName, baseDate], onUpdate: NoAction, map: "FK__pension_employee__477199F1")
+  jobTypeInfo           PensionJobTypeInfo @relation(fields: [companyName, baseDate, jobType], references: [companyName, baseDate, jobType], onUpdate: NoAction, map: "FK__pension_employee__4865BE2A")
+
+  @@id([companyName, baseDate, employeeId], map: "PK__pension___19AE7F2398BBD806")
+  @@map("pension_employee_info")
+}
+
+model PensionFinancialAssumption {
+  assumptionBaseDate Date     @map("assumption_base_date") @db.Date
+  bondType           String   @map("bond_type") @db.NVarChar(50)
+  bondRating         String   @map("bond_rating") @db.NVarChar(50)
+  maturity           Decimal  @map("maturity") @db.Decimal(5, 2)
+  yieldToMaturity    Decimal  @map("yield_to_maturity") @db.Decimal(7, 5)
+
+  @@id([assumptionBaseDate, bondType, bondRating, maturity], map: "PK__pension___7312B81393298282")
+  @@map("pension_financial_assumption")
+}
+
+model PensionDemographicAssumption {
+  assumptionBaseDate    Date     @map("assumption_base_date") @db.Date
+  demographicAssumption String   @map("demographic_assumption") @db.NVarChar(50)
+  age                   Int      @map("age") @db.SmallInt
+  demographicRate       Decimal  @map("demographic_rate") @db.Decimal(7, 5)
+
+  @@id([assumptionBaseDate, demographicAssumption, age], map: "PK__pension___4D2299BCAA000FC2")
+  @@map("pension_demographic_assumption")
+}
+
+model access_log {
+  session_id String   @id(map: "PK__pdf_ai_a__69B13FDCDD0B1BE3") @db.NVarChar(255)
+  email      String   @db.NVarChar(255)
+  created_at DateTime @db.DateTimeOffset
+  expired_at DateTime @db.DateTimeOffset
+}
+
+model auth_group {
+  id                     Int                      @id(map: "PK__auth_gro__3213E83F6A5B235E") @default(autoincrement())
+  name                   String                   @unique(map: "auth_group_name_a6ea08ec_uniq") @db.NVarChar(150)
+  auth_group_permissions auth_group_permissions[]
+  auth_user_groups       auth_user_groups[]
+}
+
+model auth_group_permissions {
+  id              BigInt          @id(map: "PK__auth_gro__3213E83FFF0E59C5") @default(autoincrement())
+  group_id        Int
+  permission_id   Int
+  auth_group      auth_group      @relation(fields: [group_id], references: [id], onUpdate: NoAction, map: "auth_group_permissions_group_id_b120cbf9_fk_auth_group_id")
+  auth_permission auth_permission @relation(fields: [permission_id], references: [id], onUpdate: NoAction, map: "auth_group_permissions_permission_id_84c5c92e_fk_auth_permission_id")
+
+  @@index([group_id], map: "auth_group_permissions_group_id_b120cbf9")
+  @@index([permission_id], map: "auth_group_permissions_permission_id_84c5c92e")
+}
+
+model auth_permission {
+  id                         Int                          @id(map: "PK__auth_per__3213E83FD93D80F5") @default(autoincrement())
+  name                       String                       @db.NVarChar(255)
+  content_type_id            Int
+  codename                   String                       @db.NVarChar(100)
+  auth_group_permissions     auth_group_permissions[]
+  django_content_type        django_content_type          @relation(fields: [content_type_id], references: [id], onUpdate: NoAction, map: "auth_permission_content_type_id_2f476e4b_fk_django_content_type_id")
+  auth_user_user_permissions auth_user_user_permissions[]
+
+  @@index([content_type_id], map: "auth_permission_content_type_id_2f476e4b")
+}
+
+model auth_user {
+  id                         Int                          @id(map: "PK__auth_use__3213E83FAE2D2DE7") @default(autoincrement())
+  password                   String                       @db.NVarChar(128)
+  last_login                 DateTime?                    @db.DateTimeOffset
+  is_superuser               Boolean
+  username                   String                       @unique(map: "auth_user_username_6821ab7c_uniq") @db.NVarChar(150)
+  first_name                 String                       @db.NVarChar(150)
+  last_name                  String                       @db.NVarChar(150)
+  email                      String                       @db.NVarChar(254)
+  is_staff                   Boolean
+  is_active                  Boolean
+  date_joined                DateTime                     @db.DateTimeOffset
+  auth_user_groups           auth_user_groups[]
+  auth_user_user_permissions auth_user_user_permissions[]
+  django_admin_log           django_admin_log[]
+}
+
+model auth_user_groups {
+  id         BigInt     @id(map: "PK__auth_use__3213E83F590EF6F6") @default(autoincrement())
+  user_id    Int
+  group_id   Int
+  auth_group auth_group @relation(fields: [group_id], references: [id], onUpdate: NoAction, map: "auth_user_groups_group_id_97559544_fk_auth_group_id")
+  auth_user  auth_user  @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "auth_user_groups_user_id_6a12ed8b_fk_auth_user_id")
+
+  @@index([group_id], map: "auth_user_groups_group_id_97559544")
+  @@index([user_id], map: "auth_user_groups_user_id_6a12ed8b")
+}
+
+model auth_user_user_permissions {
+  id              BigInt          @id(map: "PK__auth_use__3213E83F5B8572B7") @default(autoincrement())
+  user_id         Int
+  permission_id   Int
+  auth_permission auth_permission @relation(fields: [permission_id], references: [id], onUpdate: NoAction, map: "auth_user_user_permissions_permission_id_1fbb5f2c_fk_auth_permission_id")
+  auth_user       auth_user       @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "auth_user_user_permissions_user_id_a95ead1b_fk_auth_user_id")
+
+  @@index([permission_id], map: "auth_user_user_permissions_permission_id_1fbb5f2c")
+  @@index([user_id], map: "auth_user_user_permissions_user_id_a95ead1b")
+}
+
+model django_admin_log {
+  id                  Int                  @id(map: "PK__django_a__3213E83F241197D6") @default(autoincrement())
+  action_time         DateTime             @db.DateTimeOffset
+  object_id           String?              @db.NVarChar(Max)
+  object_repr         String               @db.NVarChar(200)
+  action_flag         Int                  @db.SmallInt
+  change_message      String               @db.NVarChar(Max)
+  content_type_id     Int?
+  user_id             Int
+  django_content_type django_content_type? @relation(fields: [content_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "django_admin_log_content_type_id_c4bce8eb_fk_django_content_type_id")
+  auth_user           auth_user            @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "django_admin_log_user_id_c564eba6_fk_auth_user_id")
+
+  @@index([content_type_id], map: "django_admin_log_content_type_id_c4bce8eb")
+  @@index([user_id], map: "django_admin_log_user_id_c564eba6")
+}
+
+model django_content_type {
+  id               Int                @id(map: "PK__django_c__3213E83F0B11B100") @default(autoincrement())
+  app_label        String             @db.NVarChar(100)
+  model            String             @db.NVarChar(100)
+  auth_permission  auth_permission[]
+  django_admin_log django_admin_log[]
+}
+
+model django_migrations {
+  id      BigInt   @id(map: "PK__django_m__3213E83FE467A7CB") @default(autoincrement())
+  app     String   @db.NVarChar(255)
+  name    String   @db.NVarChar(255)
+  applied DateTime @db.DateTimeOffset
+}
+
+model django_session {
+  session_key  String   @id(map: "PK__django_s__B3BA0F1FCEB46A00") @db.NVarChar(40)
+  session_data String   @db.NVarChar(Max)
+  expire_date  DateTime @db.DateTimeOffset
+
+  @@index([expire_date], map: "django_session_expire_date_a5c62663")
+}
+
+model file_name_mapping {
+  id                  Int         @id(map: "PK__pdf_ai_f__3213E83FD19A4DA4") @default(autoincrement())
+  file_uuid           String      @db.NVarChar(255)
+  original_file_name  String      @db.NVarChar(255)
+  request_id          Int
+  converted_file_name String      @db.NVarChar(255)
+  request_log         request_log @relation(fields: [request_id], references: [id], onUpdate: NoAction, map: "pdf_ai_filenamemapping_request_id_bbf5666a_fk_pdf_ai_requestlog_id")
+
+  @@index([request_id], map: "pdf_ai_filenamemapping_request_id_bbf5666a")
+}
+
+model llm_log {
+  id          Int         @id(map: "PK__pdf_ai_l__3213E83FDD104415") @default(autoincrement())
+  model_name  String      @db.NVarChar(255)
+  status_code String      @db.NVarChar(255)
+  sys_prompt  String      @db.NVarChar(2047)
+  user_prompt String      @db.NVarChar(2047)
+  error_msg   String?     @db.NVarChar(255)
+  request_id  Int
+  request_log request_log @relation(fields: [request_id], references: [id], onUpdate: NoAction, map: "pdf_ai_llm_log_request_id_94068ec6_fk_pdf_ai_requestlog_id")
+
+  @@index([request_id], map: "pdf_ai_llm_log_request_id_94068ec6")
+}
+
+model ocr_log {
+  ocr_id      String      @id(map: "PK__pdf_ai_o__C10793FA038DD6F8") @db.NVarChar(255)
+  status_code String      @db.NVarChar(255)
+  output_path String      @db.NVarChar(255)
+  content     String?     @db.NVarChar(2047)
+  error_msg   String?     @db.NVarChar(255)
+  request_id  Int
+  file_name   String      @db.NVarChar(255)
+  request_log request_log @relation(fields: [request_id], references: [id], onUpdate: NoAction, map: "pdf_ai_ocr_log_request_id_c6d6bd48_fk_pdf_ai_requestlog_id")
+
+  @@index([request_id], map: "pdf_ai_ocr_log_request_id_c6d6bd48")
+}
+
+model Purchase {
+  IndexColumn Int     @id(map: "PK__Purchase__46A43C250EC2647E")
+  ProductName String? @db.NVarChar(50)
+  Amount      Int?
+}
+
+model request_log {
+  id                Int                 @id(map: "PK__pdf_ai_r__3213E83FD9DADB18") @default(autoincrement())
+  file_path         String              @db.NVarChar(255)
+  email             String              @db.NVarChar(255)
+  datetime          String              @db.NVarChar(255)
+  debug_msg         String?             @db.NVarChar(1023)
+  file_name         String              @db.NVarChar(255)
+  file_name_mapping file_name_mapping[]
+  llm_log           llm_log[]
+  ocr_log           ocr_log[]
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model sales_db_sample1 {
+
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 수출구분 String @map("수출구분") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 실적구분일자 DateTime @map("실적구분일자") @db.Date
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 거래처 String @map("거래처") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 품목자산분류 String @map("품목자산분류") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 부서 String @map("부서") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 담당자 String @map("담당자") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 품명 String @map("품명") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 품번 String @map("품번") @db.VarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 규격 String? @map("규격") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 수량 Float @map("수량") @db.Real
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 원화판매금액 Float @map("원화판매금액") @db.Real
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 원화부가세액 Float @map("원화부가세액") @db.Real
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 원화판매금액계 Float @map("원화판매금액계") @db.Real
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 유통구조 String @map("유통구조") @db.NVarChar(50)
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model salesDB {
+
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 수출구분 String? @map("수출구분") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 실적구분번호 String? @map("실적구분번호") @db.VarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 실적구분일자 DateTime? @map("실적구분일자") @db.Date
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 거래처 String? @map("거래처") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 거래처번호 String? @map("거래처번호") @db.NVarChar(1)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 품목자산분류 String? @map("품목자산분류") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 부서 String? @map("부서") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 담당자 String? @map("담당자") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 품명 String? @map("품명") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 품번 String? @map("품번") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 규격 String? @map("규격") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 단위 String? @map("단위") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 수량 Float? @map("수량")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 통화 String? @map("통화") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 환율 Float? @map("환율")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 판매단가 Float? @map("판매단가")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 판매금액 Float? @map("판매금액")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 부가세액 Float? @map("부가세액")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 판매금액계 Float? @map("판매금액계")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 원화판매금액 Float? @map("원화판매금액")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 원화부가세액 Float? @map("원화부가세액")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 원화판매금액계 Float? @map("원화판매금액계")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 품목대분류 String? @map("품목대분류") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 품목중분류 String? @map("품목중분류") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 품목소분류 String? @map("품목소분류") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 유통구조 String? @map("유통구조") @db.NVarChar(50)
+  @@ignore
+}
+
+model SalesOps {
+  No       Int       @id(map: "PK_SalesOps")
+  Date     DateTime? @db.Date
+  Customer String?   @db.Text
+  Amount   Float?
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model sample_data {
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 날짜 Int @map("날짜")
+  A Int @db.SmallInt
+  B Int @db.SmallInt
+
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 회계법인 String @map("회계법인") @db.NVarChar(50)
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Sheet1 {
+  Ref_no__ String? @map("계약번호\n(Ref no.)") @db.NVarChar(255)
+
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 리스명 String? @map("리스명") @db.NVarChar(255)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 리스개시일 Float? @map("리스개시일")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 리스종료일 Float? @map("리스종료일")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 지급일자 Float? @map("지급일자")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 지급연도 Float? @map("지급연도")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 유효일자 Float? @map("유효일자")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 회계연도 Float? @map("회계연도")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 기간(월) Float? @map("기간(월)")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 지급회차 Float? @map("지급회차")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 리스료 Float? @map("리스료")
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Test_DB {
+  Ref_no String? @map("계약번호_Ref_no") @db.NVarChar(50)
+
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 리스명 String? @map("리스명") @db.NVarChar(50)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 리스개시일 Int? @map("리스개시일")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 리스종료일 Int? @map("리스종료일")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 지급일자 String? @map("지급일자") @db.Char(10)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 지급연도 Int? @map("지급연도") @db.SmallInt
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 유효일자 String? @map("유효일자") @db.Char(10)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 회계연도 Int? @map("회계연도") @db.SmallInt
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 기간_월 String? @map("기간_월") @db.Char(10)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 지급회차 String? @map("지급회차") @db.Char(10)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 리스료 Int? @map("리스료")
+  @@map("Test DB")
+  @@ignore
+}
+
+model translator_api_translationlog {
+  id                  BigInt   @id(map: "PK__translat__3213E83FDB2358BB") @default(autoincrement())
+  input_file_name     String   @db.NVarChar(255)
+  email               String   @db.NVarChar(128)
+  request_time        DateTime @db.DateTimeOffset
+  s3_url_for_document String   @db.NVarChar(255)
+  s3_url_for_excel    String   @db.NVarChar(255)
+  model_name          String   @db.NVarChar(128)
+  source_language     String?  @db.NVarChar(128)
+  target_language     String?  @db.NVarChar(128)
+}
+
+
