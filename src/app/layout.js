@@ -13,7 +13,7 @@ export default function RootLayout({ children }) {
         <div className="min-h-screen bg-slate-100 py-10">
           <div className="container max-w-screen-xl mx-auto">
             <div className=""><Navigation /></div>
-            <div className="bg-white mt-10 rounded-2xl">
+            <div className="bg-white mt-2 rounded-2xl">
               {children}
             </div>
           </div>
