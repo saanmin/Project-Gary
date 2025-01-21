@@ -11,8 +11,22 @@ export const getLastDayOfPreviousQuarter = () => {
 };
 
 export const getPreviousYearDate = (dateString, yearsBack = 1) => {
-  const [year, month, day] = dateString.split('-');
-  return `${parseInt(year) - yearsBack}-${month}-${day}`;
+  if (!dateString) {
+    return '';
+  }
+
+  try {
+    const dateStringNoSpace = dateString.replace(/\s/g, '');
+    const [year, month, day] = dateStringNoSpace.split('-');
+
+    if (!year || !month || !day) {
+      return '';
+    }
+
+    return `${parseInt(year) - yearsBack}년 ${month}월 ${day}일 기준`;
+  } catch (error) {
+    return '';
+  }
 };
 
 export const formatDateInput = (input, prevInput) => {
@@ -43,7 +57,7 @@ export const formatDateInput = (input, prevInput) => {
 
 export const validateDate = (input) => {
   if (input.length !== 8) return false;
-  
+
   const year = parseInt(input.slice(0, 4));
   const month = parseInt(input.slice(4, 6));
   const day = parseInt(input.slice(6, 8));

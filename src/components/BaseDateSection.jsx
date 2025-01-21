@@ -1,13 +1,13 @@
 'use client'
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { InputWithError } from "@/components/ui/input-with-error";
 import { RequiredLabel } from "@/components/ui/required-label";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Icon } from "@iconify/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import FileUpload from "@/components/FileUpload";
+import InputDate from "@/components/InputDate";
 import { cn } from "@/lib/utils";
 
 export const BaseDateSection = ({
@@ -31,15 +31,10 @@ export const BaseDateSection = ({
                     기준일자
                 </RequiredLabel>
                 <div className="col-span-3">
-                    <InputWithError
-                        type="text"
-                        id="baseDate"
-                        name="baseDate"
+                    <InputDate
                         value={formData.baseDate}
                         onChange={handleDateChange}
-                        className="w-1/3"
                         error={validationErrors.baseDate || dateError}
-                        placeholder="YYYY-MM-DD"
                     />
                     {dateError && (
                         <p className="text-red-500 text-sm mt-2">유효하지 않은 날짜입니다</p>
@@ -86,7 +81,7 @@ export const BaseDateSection = ({
                     <FileUpload
                         id="fileUpload"
                         label="당기말 재직자 명부"
-                        subLabel={`기준일자: ${formData.baseDate}`}
+                        subLabel={getPreviousYearDate(formData.baseDate, 0)}
                         required={true}
                         {...dragDropProps}
                         onFileChange={(e) => handleFileUpload(e, 'currentYear')}
@@ -146,7 +141,7 @@ export const BaseDateSection = ({
                             <FileUpload
                                 id="fileUpload2"
                                 label="전기말 재직자 명부"
-                                subLabel={`기준일자: ${getPreviousYearDate(formData.baseDate, 1)}`}
+                                subLabel={getPreviousYearDate(formData.baseDate, 1)}
                                 {...dragDropProps}
                                 onFileChange={(e) => handleFileUpload(e, 'previousYear')}
                                 uploadedFile={formData.files.previousYear}
@@ -158,7 +153,7 @@ export const BaseDateSection = ({
                             <FileUpload
                                 id="fileUpload3"
                                 label="전전기말 재직자 명부"
-                                subLabel={`기준일자: ${getPreviousYearDate(formData.baseDate, 2)}`}
+                                subLabel={getPreviousYearDate(formData.baseDate, 2)}
                                 {...dragDropProps}
                                 onFileChange={(e) => handleFileUpload(e, 'twoPreviousYear')}
                                 uploadedFile={formData.files.twoPreviousYear}
@@ -170,7 +165,7 @@ export const BaseDateSection = ({
                             <FileUpload
                                 id="fileUpload4"
                                 label="전전전기말 재직자 명부"
-                                subLabel={`기준일자: ${getPreviousYearDate(formData.baseDate, 3)}`}
+                                subLabel={getPreviousYearDate(formData.baseDate, 3)}
                                 {...dragDropProps}
                                 onFileChange={(e) => handleFileUpload(e, 'threePreviousYear')}
                                 uploadedFile={formData.files.threePreviousYear}

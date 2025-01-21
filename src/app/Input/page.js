@@ -5,7 +5,7 @@ import { BaseDateSection } from "@/components/BaseDateSection";
 import { useDragDrop } from "@/hooks/useDragDrop";
 import { useFormValidation } from "@/hooks/useFormValidation";
 import { formReducer, initialState } from "@/reducers/formReducer";
-import { formatDateInput, validateDate } from "@/utils/dateUtils";
+import { formatDateInput, validateDate, getPreviousYearDate } from "@/utils/dateUtils";
 import { cn } from "@/lib/utils";
 
 const page = () => {
@@ -155,6 +155,7 @@ const page = () => {
               dateError={dateError}
               dragDropProps={dragDropProps}
               handleFileUpload={handleFileUpload}
+              getPreviousYearDate={getPreviousYearDate}
               setFormData={newData => dispatch({ type: 'UPDATE_FORM_DATA', ...newData })}
               validationErrors={validationErrors}
               handleBondRatingChange={handleBondRatingChange}
