@@ -1,6 +1,7 @@
 'use client'
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
+import { RequiredLabel } from "@/components/ui/required-label";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/react";
 
@@ -14,10 +15,15 @@ const FileUpload = ({ id, label, subLabel, required, dragActive, onDragEnter, on
   return (
     <div className="grid grid-cols-4 gap-4 items-top mt-4">
       <div className="flex flex-col">
-        <Label htmlFor={id} className="text-base font-medium text-slate-700">
-          {label}
-          {required && <span className="text-red-500 text-sm font-medium align-top pl-1">*</span>}
-        </Label>
+        {required ? (
+          <RequiredLabel htmlFor={id} className="text-base font-medium text-slate-700">
+            {label}
+          </RequiredLabel>
+        ) : (
+          <Label htmlFor={id} className="text-base font-medium text-slate-700">
+            {label}
+          </Label>
+        )}
         {subLabel && <span className="text-sm text-slate-500">{subLabel}</span>}
       </div>
 

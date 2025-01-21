@@ -1,13 +1,13 @@
 'use client'
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { InputWithError } from "@/components/ui/input-with-error";
 import { Label } from "@/components/ui/label";
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Icon } from "@iconify/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
+import { RequiredLabel } from "@/components/ui/required-label";
 
 import { cn } from "@/lib/utils";
 import FileUpload from "@/components/FileUpload";
@@ -25,21 +25,16 @@ const jobTypeInfo = [{
   baseUp: '2'
 }];
 
-const required = () => {
-  return <span className="text-red-500 text-sm font-medium align-top pl-1">*&nbsp;</span>;
-}
-
-const CompanyInfoSection = ({ formData, handleChange }) => {
+const CompanyInfoSection = ({ formData, handleChange, validationErrors, onContinue }) => {
   return (
     <section id="companyInfo" className="space-y-10">
       <h1 className="text-2xl font-semibold mb-6">회사 정보 입력</h1>
       <div className="grid grid-cols-4 gap-4 items-top">
-        <Label htmlFor="companyName" className="text-base font-medium text-slate-700">
+        <RequiredLabel htmlFor="companyName" className="text-base font-medium text-slate-700">
           회사명
-          {required()}
-        </Label>
+        </RequiredLabel>
         <div className="col-span-3">
-          <Input
+          <InputWithError
             type="text"
             id="companyName"
             name="companyName"
@@ -47,15 +42,16 @@ const CompanyInfoSection = ({ formData, handleChange }) => {
             onChange={handleChange}
             className="w-full"
             placeholder="예) ABC 주식회사"
+            error={validationErrors.companyName}
           />
+
         </div>
       </div>
 
       <div className="grid grid-cols-4 gap-4 items-top">
-        <label htmlFor="jobType" className="text-base font-medium text-slate-700">
+        <RequiredLabel htmlFor="jobType" className="text-base font-medium text-slate-700">
           직군 정보
-          {required()}
-        </label>
+        </RequiredLabel>
         <div className="col-span-3">
           <div className="flex justify-end mb-3">
             <Button variant="outline">
@@ -86,49 +82,67 @@ const CompanyInfoSection = ({ formData, handleChange }) => {
           </div>
         </div>
       </div>
+      <div className="mt-4 flex justify-end">
+        <Button onClick={onContinue}>계속하기</Button>
+      </div>
     </section>
+
   );
 };
 
-const BaseDateSection = ({ formData, handleDateChange, dateError, dragDropProps, handleFileUpload, getPreviousYearDate }) => {
+const BaseDateSection = ({
+  formData,
+  handleDateChange,
+  dateError,
+  dragDropProps,
+  handleFileUpload,
+  getPreviousYearDate,
+  setFormData,
+  validationErrors,
+  handleBondRatingChange
+}) => {
   const [selectedTab, setSelectedTab] = useState("standardRate");
 
   return (
     <section id="baseDateInfo" className="space-y-10">
       <h1 className="text-2xl font-semibold mb-6">기준일 정보 입력</h1>
       <div className="grid grid-cols-4 gap-4 items-top">
-        <Label htmlFor="baseDate" className="text-base font-medium text-slate-700">
+        <RequiredLabel htmlFor="baseDate" className="text-base font-medium text-slate-700">
           기준일자
-          {required()}
-        </Label>
+        </RequiredLabel>
         <div className="col-span-3">
-          <Input
+          <InputWithError
             type="text"
             id="baseDate"
             name="baseDate"
             value={formData.baseDate}
             onChange={handleDateChange}
-            className={`w-1/3 ${dateError ? 'border-red-500' : ''}`}
+            className="w-1/3"
+            error={validationErrors.baseDate || dateError}
             placeholder="YYYY-MM-DD"
-            maxLength={10}
           />
           {dateError && (
-            <p className="text-red-500 text-sm mt-1">정확한 날짜 값을 입력하세요.</p>
+            <p className="text-red-500 text-sm mt-2">유효하지 않은 날짜입니다</p>
           )}
         </div>
       </div>
 
       <div className="grid grid-cols-4 gap-4 items-top">
         <div className="flex flex-col">
-          <Label htmlFor="baseDate" className="text-base font-medium text-slate-700">
+          <RequiredLabel htmlFor="baseDate" className="text-base font-medium text-slate-700">
             채권등급
-            {required()}
-          </Label>
+          </RequiredLabel>
           <span className="text-sm text-slate-500">무보증 공모사채</span>
         </div>
-        <div className="col-span-3">
-          <Select onValueChange={(value) => setFormData(prev => ({ ...prev, bondRating: value }))}>
-            <SelectTrigger className="w-1/3">
+        <div className="col-span-3 relative">
+          <Select
+            onValueChange={handleBondRatingChange}
+            value={formData.bondRating}
+          >
+            <SelectTrigger className={cn(
+              "w-1/3",
+              validationErrors.bondRating && formData.bondRating === "" && "!outline !outline-2 !outline-red-500 focus-visible:!ring-0"
+            )}>
               <SelectValue placeholder="회사채 등급" />
             </SelectTrigger>
             <SelectContent>
@@ -163,10 +177,9 @@ const BaseDateSection = ({ formData, handleDateChange, dateError, dragDropProps,
       </div>
 
       <div className="grid grid-cols-4 gap-4 items-top">
-        <Label htmlFor="baseDate" className="text-base text-slate-700">
+        <RequiredLabel htmlFor="baseDate" className="text-base text-slate-700">
           표준율 사용 여부
-          {required()}
-        </Label>
+        </RequiredLabel>
         <div className="col-span-3">
           <Tabs
             defaultValue="standardRate"
@@ -291,52 +304,57 @@ const page = () => {
   });
   const [dateError, setDateError] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({
+    companyName: false,
+    baseDate: false,
+    bondRating: false,
+    currentYearFile: false
+  });
+
+  const [showNextSection, setShowNextSection] = useState(false);
+
+  const handleContinue = () => {
+    const companyNameError = !formData.companyName;
+    setValidationErrors(prev => ({
+      ...prev,
+      companyName: companyNameError,
+      baseDate: false,
+      bondRating: false,
+      currentYearFile: false
+    }));
+
+    if (!companyNameError) {
+      setShowNextSection(true);
+      // Scroll to the next section
+      const baseDataSection = document.getElementById('baseDateInfo');
+      if (baseDataSection) {
+        baseDataSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log('Form submitted');
 
-    // Validate required fields
-    if (!formData.companyName || !formData.baseDate || !formData.bondRating || !formData.files.currentYear) {
-      alert('필수 항목을 모두 입력해주세요.');
-      return;
-    }
-
-    if (dateError) {
-      alert('올바른 날짜를 입력해주세요.');
-      return;
-    }
-
-    const submission = {
-      ...formData,
-      submittedAt: new Date().toISOString(),
-      id: Date.now()
+    // Reset validation errors (excluding companyName)
+    const newValidationErrors = {
+      ...validationErrors,
+      baseDate: !formData.baseDate,
+      bondRating: !formData.bondRating,
+      currentYearFile: !formData.files.currentYear
     };
 
-    // If using historical rate, validate required historical files
-    if (!formData.useStandardRate) {
-      if (!formData.files.previousYear) {
-        alert('경험율 사용 시 최소 1개년 이상의 기말 재직자 명부가 업로드 되어야 합니다.');
-        return;
-      }
+    setValidationErrors(newValidationErrors);
+
+    // Check if there are any errors (excluding companyName)
+    if (Object.values(newValidationErrors).some(error => error)) {
+      console.log('Form has errors');
+      return;
     }
 
-    const existingSubmissions = JSON.parse(localStorage.getItem('submissions') || '[]');
-    localStorage.setItem('submissions', JSON.stringify([...existingSubmissions, submission]));
-
-    // Reset form after successful submission
-    setFormData({
-      companyName: '',
-      jobType: jobTypeInfo,
-      baseDate: getLastDayOfPreviousQuarter(),
-      bondRating: '',
-      useStandardRate: true,
-      files: {
-        currentYear: null,
-        previousYear: null,
-        twoPreviousYear: null,
-        threePreviousYear: null
-      }
-    });
+    // Proceed with form submission
+    console.log('Form data:', formData);
   };
 
   const handleChange = (e) => {
@@ -345,42 +363,46 @@ const page = () => {
       ...prev,
       [name]: value
     }));
+    // Clear validation error for the changed field
+    setValidationErrors(prev => ({
+      ...prev,
+      [name]: false
+    }));
   };
 
+  // Add handler for bond rating change
+  const handleBondRatingChange = (value) => {
+    setFormData(prev => ({
+      ...prev,
+      bondRating: value
+    }));
+    setValidationErrors(prev => ({
+      ...prev,
+      bondRating: false
+    }));
+  };
   const handleDateChange = (e) => {
-    // 이전 값과 새로운 값을 비교해서 삭제 중인지 확인
-    const isDeleting = e.target.value.length < e.target._prevLength;
-    e.target._prevLength = e.target.value.length;
-
-    // 삭제 중일 때는 하이픈까지 함께 지우기
-    if (isDeleting && e.target.value.endsWith('-')) {
-      const newValue = e.target.value.slice(0, -1);
-      setFormData(prev => ({
-        ...prev,
-        baseDate: newValue
-      }));
-      return;
-    }
-
     const input = e.target.value.replace(/\D/g, '');
-    let formattedDate = input;
-
-    if (input.length >= 4) {
-      formattedDate = input.slice(0, 4) + '-' + input.slice(4);
-    }
-    if (input.length >= 6) {
-      formattedDate = formattedDate.slice(0, 7) + '-' + input.slice(6);
-    }
 
     if (input.length > 8) {
       return;
     }
 
+    // 표시를 위한 값 포맷팅
+    let displayValue = input;
+    if (input.length >= 4) {
+      displayValue = input.slice(0, 4) + ' - ' + input.slice(4);
+    }
+    if (input.length >= 6) {
+      displayValue = displayValue.slice(0, 9) + ' - ' + input.slice(6);
+    }
+
     setFormData(prev => ({
       ...prev,
-      baseDate: formattedDate
+      baseDate: displayValue
     }));
 
+    // 유효성 검사 (숫자만 사용)
     if (input.length === 8) {
       const year = parseInt(input.slice(0, 4));
       const month = parseInt(input.slice(4, 6));
@@ -396,7 +418,6 @@ const page = () => {
       setDateError(false);
     }
   };
-
   const handleFileUpload = (e, fileType) => {
     if (!e) {
       setFormData(prev => ({
@@ -475,45 +496,35 @@ const page = () => {
       <div className="flex-1 px-8 py-10">
         <form onSubmit={handleSubmit} className="max-w-3xl space-y-8">
           <section id="companyInfo">
-            <CompanyInfoSection formData={formData} handleChange={handleChange} />
-          </section>
-
-          <div className="my-14 flex justify-end">
-            <Button
-              type="button"
-              className=""
-              onClick={() => {
-                const element = document.getElementById('baseDateInfo');
-                const navHeight = document.querySelector('nav').offsetHeight;
-                // const offset = navHeight + 20;
-                const offset = 20;
-                const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
-                window.scrollTo({
-                  top: elementPosition - offset,
-                  behavior: 'smooth'
-                });
-              }}
-            >
-              Continue →
-            </Button>
-          </div>
-
-          <section id="baseDateInfo">
-            <BaseDateSection
+            <CompanyInfoSection
               formData={formData}
-              handleDateChange={handleDateChange}
-              dateError={dateError}
-              dragDropProps={currentYearDragProps}
-              handleFileUpload={handleFileUpload}
-              getPreviousYearDate={getPreviousYearDate}
+              handleChange={handleChange}
+              validationErrors={validationErrors}
+              onContinue={handleContinue}
             />
           </section>
 
-          <div className="my-20 flex justify-end">
-            <Button type="submit" className="">
-              Submit
-            </Button>
-          </div>
+          {showNextSection && (
+            <section id="baseDateInfo">
+              <BaseDateSection
+                formData={formData}
+                handleDateChange={handleDateChange}
+                dateError={dateError}
+                dragDropProps={currentYearDragProps}
+                handleFileUpload={handleFileUpload}
+                getPreviousYearDate={getPreviousYearDate}
+                setFormData={setFormData}
+                validationErrors={validationErrors}
+                handleBondRatingChange={handleBondRatingChange}
+              />
+              <div className="my-20 flex justify-end">
+                <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                  제출하기
+                </Button>
+              </div>
+            </section>
+          )}
+
         </form>
       </div>
     </div>
