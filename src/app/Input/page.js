@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { InputWithError } from "@/components/ui/input-with-error";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,8 @@ import { cn } from "@/lib/utils";
 import FileUpload from "@/components/FileUpload";
 import { useDragDrop } from "@/hooks/useDragDrop";
 
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+
 const jobTypeInfo = [{
   jobType: 1,
   jobTypeName: '직원',
@@ -25,7 +27,18 @@ const jobTypeInfo = [{
   baseUp: '2'
 }];
 
-const CompanyInfoSection = ({ formData, handleChange, validationErrors, onContinue }) => {
+const CompanyInfoSection = ({ formData, handleChange, validationErrors, onContinue, setValidationErrors, isDisabled, companyNameRef }) => {
+  const handleCompanyNameChange = (e) => {
+    handleChange(e);
+    // Reset validation error when typing starts
+    if (validationErrors.companyName) {
+      setValidationErrors(prev => ({
+        ...prev,
+        companyName: false
+      }));
+    }
+  };
+
   return (
     <section id="companyInfo" className="space-y-10">
       <h1 className="text-2xl font-semibold mb-6">회사 정보 입력</h1>
@@ -35,14 +48,16 @@ const CompanyInfoSection = ({ formData, handleChange, validationErrors, onContin
         </RequiredLabel>
         <div className="col-span-3">
           <InputWithError
+            ref={companyNameRef}
             type="text"
             id="companyName"
             name="companyName"
             value={formData.companyName}
-            onChange={handleChange}
+            onChange={handleCompanyNameChange}
             className="w-full"
             placeholder="예) ABC 주식회사"
             error={validationErrors.companyName}
+            disabled={isDisabled}
           />
 
         </div>
@@ -54,7 +69,7 @@ const CompanyInfoSection = ({ formData, handleChange, validationErrors, onContin
         </RequiredLabel>
         <div className="col-span-3">
           <div className="flex justify-end mb-3">
-            <Button variant="outline">
+            <Button variant="outline" disabled={isDisabled}>
               <Icon icon="vscode-icons:file-type-excel" width="16" height="16" />일괄 업로드
             </Button>
           </div>
@@ -83,7 +98,9 @@ const CompanyInfoSection = ({ formData, handleChange, validationErrors, onContin
         </div>
       </div>
       <div className="mt-4 flex justify-end">
-        <Button onClick={onContinue}>계속하기</Button>
+        <Button type="button" onClick={onContinue} variant="default" disabled={isDisabled}>
+          계속하기
+        </Button>
       </div>
     </section>
 
@@ -194,11 +211,30 @@ const BaseDateSection = ({
           >
             <TabsList>
               <TabsTrigger value="standardRate">표준율</TabsTrigger>
-              <TabsTrigger value="historicalRate">경험율</TabsTrigger>
+              <TabsTrigger value="historicalRate">경험률</TabsTrigger>
             </TabsList>
-            <TabsContent value="standardRate" className="mt-4">300인 미만 사업장에 해당하여, 보험업법에 의한 보험요율산출기관이 산출한 승급률, 임금인상률, 퇴직률을 이용합니다.</TabsContent>
+            <TabsContent value="standardRate" className="mt-4">
+              <Alert>
+                <Icon icon="heroicons:information-circle" width="16" height="16" />
+                <AlertTitle>표준율</AlertTitle>
+                <AlertDescription className="mt-3">
+                  <p>종업원 수 300인 미만 사업장에 적용할 수 있습니다.</p>
+                  <p>보험업법에 의한 보험요율산출기관이 산출한 승급률, 임금인상률 및 퇴직률을 이용합니다.</p>
+                </AlertDescription>
+              </Alert>
+
+
+            </TabsContent>
             <TabsContent value="historicalRate" className="mt-4">
-              경험율 산출을 위해 과거 재직자 명부를 추가로 업로드해주세요.
+              <Alert>
+                <Icon icon="heroicons:information-circle" width="16" height="16" />
+                <AlertTitle>경험률</AlertTitle>
+                <AlertDescription className="mt-3">
+                  <p>경험통계를 기초로 산출된 경험승급률, 경험임금인상률 및 경험퇴직률을 이용합니다.</p>
+                  <p>기초율 산정을 위해 당기 이전 재직자 명부를 제출해야 합니다.</p>
+                  <p>제출한 재직자 명부 수에 따라 n개년 경험률을 산출합니다.</p>
+                </AlertDescription>
+              </Alert>
             </TabsContent>
           </Tabs>
         </div>
@@ -243,12 +279,18 @@ const BaseDateSection = ({
           </>
         )}
       </div>
+      <div className="my-20 flex justify-end">
+        <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+          제출하기
+        </Button>
+      </div>
     </section>
   );
 };
 
 const page = () => {
   const [activeSection, setActiveSection] = useState('companyInfo');
+  const companyNameRef = useRef(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -281,7 +323,7 @@ const page = () => {
     const year = lastDay.getFullYear();
     const month = String(lastDay.getMonth() + 1).padStart(2, '0');
     const day = String(lastDay.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return `${year}${month}${day}`;
   };
 
   const getPreviousYearDate = (dateString, yearsBack = 1) => {
@@ -312,6 +354,16 @@ const page = () => {
   });
 
   const [showNextSection, setShowNextSection] = useState(false);
+  const [isCompanyInfoDisabled, setIsCompanyInfoDisabled] = useState(false);
+
+  useEffect(() => {
+    if (showNextSection) {
+      const baseDataSection = document.getElementById('baseDateInfo');
+      if (baseDataSection) {
+        baseDataSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [showNextSection]);
 
   const handleContinue = () => {
     const companyNameError = !formData.companyName;
@@ -325,11 +377,10 @@ const page = () => {
 
     if (!companyNameError) {
       setShowNextSection(true);
-      // Scroll to the next section
-      const baseDataSection = document.getElementById('baseDateInfo');
-      if (baseDataSection) {
-        baseDataSection.scrollIntoView({ behavior: 'smooth' });
-      }
+      setIsCompanyInfoDisabled(true);
+    } else {
+      // Focus on company name input when there's an error
+      companyNameRef.current.focus();
     }
   };
 
@@ -383,6 +434,10 @@ const page = () => {
   };
   const handleDateChange = (e) => {
     const input = e.target.value.replace(/\D/g, '');
+    const prevInput = formData.baseDate.replace(/\D/g, '');
+
+    // 삭제 동작 감지
+    const isDeleting = input.length < prevInput.length;
 
     if (input.length > 8) {
       return;
@@ -393,8 +448,17 @@ const page = () => {
     if (input.length >= 4) {
       displayValue = input.slice(0, 4) + ' - ' + input.slice(4);
     }
-    if (input.length >= 6) {
+    if (input.length >= 6 && !isDeleting) {
       displayValue = displayValue.slice(0, 9) + ' - ' + input.slice(6);
+    }
+
+    // 삭제 시 하이픈 제거
+    if (isDeleting) {
+      if (input.length === 4) {
+        displayValue = input.slice(0, 4);
+      } else if (input.length === 6) {
+        displayValue = input.slice(0, 4) + ' - ' + input.slice(4, 6);
+      }
     }
 
     setFormData(prev => ({
@@ -495,34 +559,33 @@ const page = () => {
       {/* Right side - Form */}
       <div className="flex-1 px-8 py-10">
         <form onSubmit={handleSubmit} className="max-w-3xl space-y-8">
-          <section id="companyInfo">
-            <CompanyInfoSection
-              formData={formData}
-              handleChange={handleChange}
-              validationErrors={validationErrors}
-              onContinue={handleContinue}
-            />
-          </section>
+
+          <CompanyInfoSection
+            formData={formData}
+            handleChange={handleChange}
+            validationErrors={validationErrors}
+            onContinue={handleContinue}
+            setValidationErrors={setValidationErrors}
+            isDisabled={isCompanyInfoDisabled}
+            companyNameRef={companyNameRef}
+          />
+
 
           {showNextSection && (
-            <section id="baseDateInfo">
-              <BaseDateSection
-                formData={formData}
-                handleDateChange={handleDateChange}
-                dateError={dateError}
-                dragDropProps={currentYearDragProps}
-                handleFileUpload={handleFileUpload}
-                getPreviousYearDate={getPreviousYearDate}
-                setFormData={setFormData}
-                validationErrors={validationErrors}
-                handleBondRatingChange={handleBondRatingChange}
-              />
-              <div className="my-20 flex justify-end">
-                <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
-                  제출하기
-                </Button>
-              </div>
-            </section>
+
+            <BaseDateSection
+              formData={formData}
+              handleDateChange={handleDateChange}
+              dateError={dateError}
+              dragDropProps={currentYearDragProps}
+              handleFileUpload={handleFileUpload}
+              getPreviousYearDate={getPreviousYearDate}
+              setFormData={setFormData}
+              validationErrors={validationErrors}
+              handleBondRatingChange={handleBondRatingChange}
+            />
+
+
           )}
 
         </form>
