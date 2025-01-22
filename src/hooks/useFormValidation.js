@@ -30,6 +30,13 @@ export const useFormValidation = (dispatch, formData, companyNameRef) => {
       currentYearFile: !formData.files.currentYear
     };
 
+    console.log("Validation details:", {
+      baseDate: formData.baseDate,
+      bondRating: formData.bondRating,
+      currentYearFile: formData.files.currentYear,
+      errors: newValidationErrors
+    });
+
     dispatch({
       type: 'RESET_VALIDATION_ERRORS',
       errors: newValidationErrors

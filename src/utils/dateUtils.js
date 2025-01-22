@@ -7,7 +7,7 @@ export const getLastDayOfPreviousQuarter = () => {
   const year = lastDay.getFullYear();
   const month = String(lastDay.getMonth() + 1).padStart(2, '0');
   const day = String(lastDay.getDate()).padStart(2, '0');
-  return `${year}${month}${day}`;
+  return `${year}-${month}-${day}`;
 };
 
 export const getPreviousYearDate = (dateString, yearsBack = 1) => {

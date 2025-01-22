@@ -168,20 +168,17 @@ const page = () => {
   }, []);
 
   const handleDateChange = useCallback((e) => {
-    const input = e.target.value.replace(/\D/g, '');
-    const prevInput = formData.baseDate.replace(/\D/g, '');
+    const value = e.target.value;
+    console.log("Date changed:", value);
+    dispatch({ type: 'UPDATE_FORM_DATA', field: 'baseDate', value });
 
-    const displayValue = formatDateInput(input, prevInput);
-    if (displayValue === null) return;
-
-    dispatch({ type: 'UPDATE_FORM_DATA', field: 'baseDate', value: displayValue });
-
-    if (input.length === 8) {
-      dispatch({ type: 'SET_DATE_ERROR', value: !validateDate(input) });
+    if (value.length === 10) { // YYYY-MM-DD 형식일 때
+      const dateWithoutHyphen = value.replace(/-/g, '');
+      dispatch({ type: 'SET_DATE_ERROR', value: !validateDate(dateWithoutHyphen) });
     } else {
       dispatch({ type: 'SET_DATE_ERROR', value: false });
     }
-  }, [formData.baseDate]);
+  }, []);
 
   const handleFileUpload = useCallback((e, fileType) => {
     const file = e?.target?.files?.[0] || null;
@@ -198,8 +195,21 @@ const page = () => {
 
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
+    console.log("Parent handleSubmit called");
     if (validateSubmission()) {
-      console.log('Form submitted:', formData);
+      console.log("Validation passed");
+      // baseDate에서 하이픈 제거
+      const formattedBaseDate = formData.baseDate.replace(/-/g, '');
+      const queryParams = new URLSearchParams({
+        companyName: formData.companyName,
+        companyType: formData.companyType,
+        bondRating: formData.bondRating,
+        baseDate: formattedBaseDate
+      }).toString();
+      console.log("Query params:", queryParams);
+      window.location.href = `/Preview?${queryParams}`;
+    } else {
+      console.log("Validation failed");
     }
   }, [formData, validateSubmission]);
 
@@ -234,7 +244,6 @@ const page = () => {
       {/* Right side - Form */}
       <div className="flex-1 px-8 py-10">
         <form onSubmit={handleSubmit} className="max-w-3xl space-y-8">
-
           <CompanyInfoSection
             formData={formData}
             handleChange={handleChange}

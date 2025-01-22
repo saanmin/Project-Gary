@@ -5,7 +5,22 @@ import { RequiredLabel } from "@/components/ui/required-label";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/react";
 
-const FileUpload = ({ id, label, subLabel, required, dragActive, onDragEnter, onDragLeave, onDragOver, onDrop, onFileChange, uploadedFile, onDelete }) => {
+const FileUpload = ({ 
+  id, 
+  label, 
+  subLabel, 
+  required, 
+  dragActive, 
+  onDragEnter, 
+  onDragLeave, 
+  onDragOver, 
+  onDrop, 
+  onFileChange, 
+  uploadedFile, 
+  onDelete,
+  error,
+  errorMessage 
+}) => {
   // Prevent default behavior for the entire drop zone
   const handleDragEvent = (e) => {
     e.preventDefault();
@@ -32,7 +47,7 @@ const FileUpload = ({ id, label, subLabel, required, dragActive, onDragEnter, on
           <div
             className={cn(
               "relative rounded-lg border-2 border-dashed p-6 transition-all",
-              dragActive ? "border-blue-500 bg-blue-100" : "border-slate-300",
+              dragActive ? "border-blue-500 bg-blue-100" : error ? "border-red-500" : "border-slate-300",
               "hover:border-blue-500"
             )}
             onDragEnter={(e) => {
@@ -115,6 +130,9 @@ const FileUpload = ({ id, label, subLabel, required, dragActive, onDragEnter, on
               </Button>
             </div>
           </div>
+        )}
+        {error && errorMessage && (
+          <p className="text-sm text-red-500 mt-2">{errorMessage}</p>
         )}
       </div>
     </div>

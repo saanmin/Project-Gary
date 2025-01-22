@@ -21,7 +21,8 @@ export const BaseDateSection = ({
     validationErrors,
     handleBondRatingChange,
     className,
-    id
+    id,
+    handleSubmit
 }) => {
     const [selectedTab, setSelectedTab] = useState("standardRate");
 
@@ -89,6 +90,8 @@ export const BaseDateSection = ({
                         onFileChange={(e) => handleFileUpload(e, 'currentYear')}
                         uploadedFile={formData.files.currentYear}
                         onDelete={() => handleFileUpload(null, 'currentYear')}
+                        error={validationErrors.currentYearFile}
+                        errorMessage="당기말 재직자 명부를 업로드해주세요"
                     />
                 </div>
             </div>
@@ -180,7 +183,18 @@ export const BaseDateSection = ({
                 )}
             </div>
             <div className="my-20 flex justify-end">
-                <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                <Button
+                    type="submit"
+                    className="bg-blue-600 hover:bg-blue-700"
+                    onClick={(e) => {
+                        const updatedFormData = {
+                            ...formData,
+                            companyType: selectedTab === 'standardRate' ? 'standard' : 'experience'
+                        };
+                        console.log("Submitting form with data:", updatedFormData);
+                        handleSubmit(e, updatedFormData);
+                    }}
+                >
                     제출하기
                 </Button>
             </div>

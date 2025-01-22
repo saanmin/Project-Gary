@@ -36,7 +36,7 @@ export const formReducer = (state, action) => {
           [action.field]: action.value
         }
       };
-      
+
     case 'UPDATE_FILE':
       return {
         ...state,
