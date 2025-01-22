@@ -111,27 +111,29 @@ export const BaseDateSection = ({
                             <TabsTrigger value="standardRate">표준율</TabsTrigger>
                             <TabsTrigger value="historicalRate">경험률</TabsTrigger>
                         </TabsList>
-                        <TabsContent value="standardRate" className="mt-4">
-                            <Alert>
-                                <Icon icon="heroicons:information-circle" width="16" height="16" />
-                                <AlertTitle>표준율</AlertTitle>
-                                <AlertDescription className="mt-3">
-                                    <p>종업원 수 300인 미만 사업장에 적용할 수 있습니다.</p>
-                                    <p>보험업법에 의한 보험요율산출기관이 산출한 승급률, 임금인상률 및 퇴직률을 이용합니다.</p>
-                                </AlertDescription>
-                            </Alert>
-                        </TabsContent>
-                        <TabsContent value="historicalRate" className="mt-4">
-                            <Alert>
-                                <Icon icon="heroicons:information-circle" width="16" height="16" />
-                                <AlertTitle>경험률</AlertTitle>
-                                <AlertDescription className="mt-3">
-                                    <p>경험통계를 기초로 산출된 경험승급률, 경험임금인상률 및 경험퇴직률을 이용합니다.</p>
-                                    <p>기초율 산정을 위해 당기 이전 재직자 명부를 제출해야 합니다.</p>
-                                    <p>제출한 재직자 명부 수에 따라 n개년 경험률을 산출합니다.</p>
-                                </AlertDescription>
-                            </Alert>
-                        </TabsContent>
+                        <TabsContent value="standardRate" className="mt-4" />
+                        <TabsContent value="historicalRate" className="mt-4" />
+                        <Alert className="mt-4">
+                            <Icon icon="heroicons:information-circle" width="16" height="16" />
+                            {selectedTab === "standardRate" ? (
+                                <>
+                                    <AlertTitle>표준율</AlertTitle>
+                                    <AlertDescription className="mt-3">
+                                        <p>종업원 수 300인 미만 사업장에 적용할 수 있습니다.</p>
+                                        <p>보험업법에 의한 보험요율산출기관이 산출한 승급률, 임금인상률 및 퇴직률을 이용합니다.</p>
+                                    </AlertDescription>
+                                </>
+                            ) : (
+                                <>
+                                    <AlertTitle>경험률</AlertTitle>
+                                    <AlertDescription className="mt-3">
+                                        <p>경험통계를 기초로 산출된 경험승급률, 경험임금인상률 및 경험퇴직률을 이용합니다.</p>
+                                        <p>기초율 산정을 위해 당기 이전 재직자 명부를 제출해야 합니다.</p>
+                                        <p>제출한 재직자 명부 수에 따라 n개년 경험률을 산출합니다.</p>
+                                    </AlertDescription>
+                                </>
+                            )}
+                        </Alert>
                     </Tabs>
                 </div>
 
