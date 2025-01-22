@@ -1,17 +1,19 @@
 'use client'
-import { useReducer, useEffect, useRef, useCallback } from 'react';
-import { CompanyInfoSection } from "@/components/CompanyInfoSection";
-import { BaseDateSection } from "@/components/BaseDateSection";
-import { useDragDrop } from "@/hooks/useDragDrop";
-import { useFormValidation } from "@/hooks/useFormValidation";
-import { formReducer, initialState } from "@/reducers/formReducer";
-import { formatDateInput, validateDate, getPreviousYearDate } from "@/utils/dateUtils";
-import { cn } from "@/lib/utils";
+import { useEffect, useRef, useCallback } from 'react'
+import { CompanyInfoSection } from "@/components/CompanyInfoSection"
+import { BaseDateSection } from "@/components/BaseDateSection"
+import { useDragDrop } from "@/hooks/useDragDrop"
+import { useFormValidation } from "@/hooks/useFormValidation"
+import { formatDateInput, validateDate, getPreviousYearDate } from "@/utils/dateUtils"
+import { cn } from "@/lib/utils"
+import { useFormContext } from '@/contexts/FormContext'
+import { useRouter } from 'next/navigation'
 
 const page = () => {
-  const [state, dispatch] = useReducer(formReducer, initialState);
-  const companyNameRef = useRef(null);
-  const dragDropProps = useDragDrop();
+  const { state, dispatch } = useFormContext()
+  const router = useRouter()
+  const companyNameRef = useRef(null)
+  const dragDropProps = useDragDrop()
 
   const {
     formData,
@@ -20,13 +22,13 @@ const page = () => {
     showNextSection,
     isCompanyInfoDisabled,
     activeSection
-  } = state;
+  } = state
 
   const { validateCompanyInfo, validateSubmission } = useFormValidation(
     dispatch,
     formData,
     companyNameRef
-  );
+  )
 
   useEffect(() => {
 
@@ -194,24 +196,35 @@ const page = () => {
   }, []);
 
   const handleSubmit = useCallback((e) => {
-    e.preventDefault();
-    console.log("Parent handleSubmit called");
+    e.preventDefault()
+    console.log("Parent handleSubmit called")
+    
+    // validation 전에 baseDate 형식 변환하지 않음
     if (validateSubmission()) {
-      console.log("Validation passed");
-      // baseDate에서 하이픈 제거
-      const formattedBaseDate = formData.baseDate.replace(/-/g, '');
-      const queryParams = new URLSearchParams({
-        companyName: formData.companyName,
-        companyType: formData.companyType,
-        bondRating: formData.bondRating,
+      console.log("Validation passed")
+      
+      // validation 통과 후 baseDate 형식 변환
+      const formattedBaseDate = formData.baseDate.replace(/-/g, '')
+      const updatedFormData = {
+        ...formData,
         baseDate: formattedBaseDate
-      }).toString();
-      console.log("Query params:", queryParams);
-      window.location.href = `/Preview?${queryParams}`;
+      }
+      
+      // 변환된 데이터로 Context 업데이트
+      Object.entries(updatedFormData).forEach(([field, value]) => {
+        dispatch({ 
+          type: 'UPDATE_FORM_DATA', 
+          field,
+          value
+        })
+      })
+      
+      // Preview 페이지로 이동
+      router.push('/preview')
     } else {
-      console.log("Validation failed");
+      console.log("Validation failed")
     }
-  }, [formData, validateSubmission]);
+  }, [formData, validateSubmission, dispatch, router])
 
   return (
     <div className="flex min-h-screen relative">
@@ -267,6 +280,7 @@ const page = () => {
               setFormData={newData => dispatch({ type: 'UPDATE_FORM_DATA', ...newData })}
               validationErrors={validationErrors}
               handleBondRatingChange={handleBondRatingChange}
+              handleSubmit={handleSubmit}
               className="section"
               id="baseDateInfo"
             />

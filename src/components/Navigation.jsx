@@ -34,7 +34,7 @@ const Navigation = () => {
         <div className="flex space-x-4">
           <Link
             href="/"
-            className={`px-4 py-2 rounded-full ${pathname === '/'
+            className={`px-4 py-2 rounded-full ${pathname === '/' || pathname === '/preview'
               ? 'bg-slate-900 text-white'
               : 'text-slate-600 hover:bg-slate-100'
               }`}
@@ -83,7 +83,7 @@ const Navigation = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </nav>
+    </nav >
   );
 };
 

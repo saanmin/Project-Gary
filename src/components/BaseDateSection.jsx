@@ -187,15 +187,16 @@ export const BaseDateSection = ({
                     type="submit"
                     className="bg-blue-600 hover:bg-blue-700"
                     onClick={(e) => {
-                        const updatedFormData = {
+                        // Update company type in form data
+                        setFormData({
                             ...formData,
                             companyType: selectedTab === 'standardRate' ? 'standard' : 'experience'
-                        };
-                        console.log("Submitting form with data:", updatedFormData);
-                        handleSubmit(e, updatedFormData);
+                        });
+                        // Call handleSubmit
+                        handleSubmit(e);
                     }}
                 >
-                    제출하기
+                    작성 완료
                 </Button>
             </div>
         </section>

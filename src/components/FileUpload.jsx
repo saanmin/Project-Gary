@@ -4,17 +4,13 @@ import { Label } from "@/components/ui/label";
 import { RequiredLabel } from "@/components/ui/required-label";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/react";
+import { useDragDrop } from "@/hooks/useDragDrop";
 
 const FileUpload = ({ 
   id, 
   label, 
   subLabel, 
-  required, 
-  dragActive, 
-  onDragEnter, 
-  onDragLeave, 
-  onDragOver, 
-  onDrop, 
+  required,
   onFileChange, 
   uploadedFile, 
   onDelete,
@@ -26,6 +22,19 @@ const FileUpload = ({
     e.preventDefault();
     e.stopPropagation();
   };
+
+  const handleDrop = (file) => {
+    if (file) {
+      const fakeEvent = {
+        target: {
+          files: [file]
+        }
+      };
+      onFileChange?.(fakeEvent);
+    }
+  };
+
+  const { dragActive, onDragEnter, onDragLeave, onDragOver, onDrop } = useDragDrop(handleDrop);
 
   return (
     <div className="grid grid-cols-4 gap-4 items-top mt-4 mb-10">
@@ -50,22 +59,10 @@ const FileUpload = ({
               dragActive ? "border-blue-500 bg-blue-100" : error ? "border-red-500" : "border-slate-300",
               "hover:border-blue-500"
             )}
-            onDragEnter={(e) => {
-              handleDragEvent(e);
-              onDragEnter(e);
-            }}
-            onDragLeave={(e) => {
-              handleDragEvent(e);
-              onDragLeave(e);
-            }}
-            onDragOver={(e) => {
-              handleDragEvent(e);
-              onDragOver(e);
-            }}
-            onDrop={(e) => {
-              handleDragEvent(e);
-              onDrop(e);
-            }}
+            onDragEnter={onDragEnter}
+            onDragLeave={onDragLeave}
+            onDragOver={onDragOver}
+            onDrop={onDrop}
           >
             <input
               type="file"
@@ -77,22 +74,6 @@ const FileUpload = ({
             <label
               htmlFor={id}
               className="flex flex-col items-center justify-center cursor-pointer"
-              onDragEnter={(e) => {
-                handleDragEvent(e);
-                onDragEnter(e);
-              }}
-              onDragLeave={(e) => {
-                handleDragEvent(e);
-                onDragLeave(e);
-              }}
-              onDragOver={(e) => {
-                handleDragEvent(e);
-                onDragOver(e);
-              }}
-              onDrop={(e) => {
-                handleDragEvent(e);
-                onDrop(e);
-              }}
             >
               <div className="flex flex-col items-center justify-center pt-2 space-y-2">
                 <Button variant="secondary" type="button" onClick={() => document.getElementById(id).click()}>
