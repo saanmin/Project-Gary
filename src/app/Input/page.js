@@ -29,21 +29,118 @@ const page = () => {
   );
 
   useEffect(() => {
+
+    // showNextSection이 true일 때만 observer를 다시 설정
+    if (showNextSection) {
+
+      // 현재 보이는 섹션들의 상태를 저장
+      let visibleSections = new Map();
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const entryData = {
+              id: entry.target.id,
+              isIntersecting: entry.isIntersecting,
+              intersectionRatio: entry.intersectionRatio,
+              boundingClientRect: entry.boundingClientRect,
+              rootBounds: entry.rootBounds
+            };
+
+            // 각 섹션의 가시성 상태 업데이트
+            if (entry.isIntersecting) {
+              visibleSections.set(entry.target.id, entry.intersectionRatio);
+            } else {
+              visibleSections.delete(entry.target.id);
+            }
+
+            // 가장 많이 보이는 섹션을 찾아서 활성화
+            let maxRatio = 0;
+            let mostVisibleSection = null;
+
+            visibleSections.forEach((ratio, id) => {
+              if (ratio > maxRatio) {
+                maxRatio = ratio;
+                mostVisibleSection = id;
+              }
+            });
+
+            if (mostVisibleSection) {
+              dispatch({ type: 'SET_ACTIVE_SECTION', value: mostVisibleSection });
+            }
+          });
+        },
+        {
+          root: null,
+          rootMargin: '-20% 0px -20% 0px',
+          threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+        }
+      );
+
+      // DOM이 업데이트된 후 sections를 찾아서 observe
+      setTimeout(() => {
+        const sections = document.querySelectorAll('section[id]');
+        sections.forEach((section) => {
+          observer.observe(section);
+        });
+      }, 0);
+
+      return () => {
+        const sections = document.querySelectorAll('section[id]');
+        sections.forEach((section) => observer.unobserve(section));
+      };
+    }
+  }, [showNextSection]);
+
+  useEffect(() => {
+    dispatch({ type: 'SET_ACTIVE_SECTION', value: 'companyInfo' });
+
+    let visibleSections = new Map();
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
+          const entryData = {
+            id: entry.target.id,
+            isIntersecting: entry.isIntersecting,
+            intersectionRatio: entry.intersectionRatio,
+            boundingClientRect: entry.boundingClientRect,
+            rootBounds: entry.rootBounds
+          };
+
           if (entry.isIntersecting) {
-            dispatch({ type: 'SET_ACTIVE_SECTION', value: entry.target.id });
+            visibleSections.set(entry.target.id, entry.intersectionRatio);
+          } else {
+            visibleSections.delete(entry.target.id);
+          }
+
+          let maxRatio = 0;
+          let mostVisibleSection = null;
+
+          visibleSections.forEach((ratio, id) => {
+            if (ratio > maxRatio) {
+              maxRatio = ratio;
+              mostVisibleSection = id;
+            }
+          });
+
+          if (mostVisibleSection) {
+            dispatch({ type: 'SET_ACTIVE_SECTION', value: mostVisibleSection });
           }
         });
       },
       {
-        threshold: 0.5,
+        root: null,
+        rootMargin: '-20% 0px -20% 0px',
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
       }
     );
 
-    const sections = document.querySelectorAll('section');
-    sections.forEach((section) => observer.observe(section));
+    const sections = document.querySelectorAll('section[id]');
+
+    sections.forEach((section) => {
+      observer.observe(section);
+    });
 
     return () => {
       sections.forEach((section) => observer.unobserve(section));
@@ -146,6 +243,8 @@ const page = () => {
             setValidationErrors={errors => dispatch({ type: 'RESET_VALIDATION_ERRORS', errors })}
             isDisabled={isCompanyInfoDisabled}
             companyNameRef={companyNameRef}
+            className="section"
+            id="companyInfo"
           />
 
           {showNextSection && (
@@ -159,6 +258,8 @@ const page = () => {
               setFormData={newData => dispatch({ type: 'UPDATE_FORM_DATA', ...newData })}
               validationErrors={validationErrors}
               handleBondRatingChange={handleBondRatingChange}
+              className="section"
+              id="baseDateInfo"
             />
           )}
         </form>

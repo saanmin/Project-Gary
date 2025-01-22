@@ -19,12 +19,14 @@ export const BaseDateSection = ({
     getPreviousYearDate,
     setFormData,
     validationErrors,
-    handleBondRatingChange
+    handleBondRatingChange,
+    className,
+    id
 }) => {
     const [selectedTab, setSelectedTab] = useState("standardRate");
 
     return (
-        <section id="baseDateInfo" className="space-y-10">
+        <section id={id} className={cn(className, "space-y-10")}>
             <h1 className="text-2xl font-semibold mb-6">기준일 정보 입력</h1>
             <div className="grid grid-cols-4 gap-4 items-top">
                 <RequiredLabel htmlFor="baseDate" className="text-base font-medium text-slate-700">

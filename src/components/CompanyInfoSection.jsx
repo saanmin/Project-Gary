@@ -24,7 +24,9 @@ export const CompanyInfoSection = ({
     onContinue,
     setValidationErrors,
     isDisabled,
-    companyNameRef
+    companyNameRef,
+    className,
+    id
 }) => {
     const handleCompanyNameChange = (e) => {
         handleChange(e);
@@ -37,7 +39,7 @@ export const CompanyInfoSection = ({
     };
 
     return (
-        <section id="companyInfo" className="space-y-10">
+        <section id={id} className={`${className} space-y-10`}>
             <h1 className="text-2xl font-semibold mb-6">회사 정보 입력</h1>
             <div className="grid grid-cols-4 gap-4 items-top">
                 <RequiredLabel htmlFor="companyName" className="text-base font-medium text-slate-700">
