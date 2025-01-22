@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Building2, Calendar, Download } from "lucide-react"
 import { useState } from 'react'
 import { useFormContext } from '@/contexts/FormContext'
+import { Icon } from "@iconify/react"
 
 const Page = () => {
     const [isProcessing, setIsProcessing] = useState(false)
@@ -143,7 +144,10 @@ const Page = () => {
                                 disabled={isProcessing}
                                 className="bg-slate-800 text-white hover:bg-slate-700"
                             >
-                                {isProcessing ? '처리 중...' : '제출하기'}
+                                <span className="flex items-center">
+                                    {isProcessing && <Icon icon="svg-spinners:180-ring-with-bg" width="16" height="16" />}
+                                    {isProcessing ? '처리 중...' : '제출하기'}
+                                </span>
                             </Button>
                         )}
 
