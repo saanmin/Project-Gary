@@ -145,7 +145,7 @@ const Page = () => {
                                 className="bg-slate-800 text-white hover:bg-slate-700"
                             >
                                 <span className="flex items-center">
-                                    {isProcessing && <Icon icon="svg-spinners:180-ring-with-bg" width="16" height="16" />}
+                                    {isProcessing && <Icon icon="svg-spinners:180-ring-with-bg" width="16" height="16" className="mr-2" />}
                                     {isProcessing ? '처리 중...' : '제출하기'}
                                 </span>
                             </Button>
