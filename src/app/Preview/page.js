@@ -1,7 +1,6 @@
 'use client'
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Building2, Calendar, Download } from "lucide-react"
 import { useState } from 'react'
 import { useFormContext } from '@/contexts/FormContext'
 import { Icon } from "@iconify/react"
@@ -89,7 +88,7 @@ const Page = () => {
                     {/* Company Info Section */}
                     <section className="space-y-6">
                         <div className="flex items-center gap-2">
-                            <Building2 className="w-5 h-5" />
+                            <Icon icon="heroicons:building-office-2" width="18" height="18" />
                             <h2 className="text-lg font-medium">회사 정보</h2>
                         </div>
 
@@ -106,7 +105,7 @@ const Page = () => {
                     {/* Base Date Section */}
                     <section className="space-y-6">
                         <div className="flex items-center gap-2">
-                            <Calendar className="w-5 h-5" />
+                            <Icon icon="heroicons:calendar-days" width="18" height="18" />
                             <h2 className="text-lg font-medium">기준일 정보</h2>
                         </div>
 
@@ -115,6 +114,7 @@ const Page = () => {
                                 <div className="grid grid-cols-4 gap-4 items-center">
                                     <label className="text-base font-medium text-slate-700">기준일</label>
                                     <div className="text-lg">
+                                        
                                         {(() => {
                                             const [year, month, day] = formData.baseDate.split('-')
                                             return `${year}년 ${month}월 ${day}일`
@@ -160,7 +160,7 @@ const Page = () => {
                                     onClick={handleDownload}
                                     className="bg-green-600 text-white hover:bg-green-500 flex items-center gap-2"
                                 >
-                                    <Download className="w-4 h-4" />
+                                    <Icon icon="heroicons:arrow-down-tray-20-solid" width="16" height="16" />
                                     엑셀 파일 다운로드
                                 </Button>
                             </div>
