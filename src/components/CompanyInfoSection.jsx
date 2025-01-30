@@ -4,6 +4,7 @@ import { InputWithError } from "@/components/ui/input-with-error";
 import { RequiredLabel } from "@/components/ui/required-label";
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 import { Icon } from "@iconify/react";
+import { useState } from 'react';
 
 const jobTypeInfo = [{
     jobType: 1,
@@ -28,6 +29,8 @@ export const CompanyInfoSection = ({
     className,
     id
 }) => {
+    const [salaryMethod, setSalaryMethod] = useState('ageBasedIncrease');
+
     const handleCompanyNameChange = (e) => {
         handleChange(e);
         if (validationErrors.companyName) {
@@ -93,6 +96,63 @@ export const CompanyInfoSection = ({
                             </TableBody>
                         </Table>
                     </div>
+                </div>
+            </div>
+            <div className="grid grid-cols-4 gap-4 items-top">
+                <RequiredLabel htmlFor="salaryEstimationMethod" className="text-base font-medium text-slate-700">
+                    임금상승률 적용방식
+                </RequiredLabel>
+                <div className="col-span-3 space-y-3">
+                    <label className="flex items-center space-x-3 cursor-pointer group">
+                        <div className="relative">
+                            <input
+                                type="radio"
+                                name="salaryEstimationMethod"
+                                value="ageBasedIncrease"
+                                checked={salaryMethod === 'ageBasedIncrease'}
+                                onChange={(e) => setSalaryMethod(e.target.value)}
+                                className="hidden"
+                            />
+                            <div className="w-5 h-5 border-2 border-gray-300 rounded-full group-hover:border-gray-400">
+                                {salaryMethod === 'ageBasedIncrease' && (
+                                    <div className="w-2.5 h-2.5 bg-blue-500 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
+                                )}
+                            </div>
+                        </div>
+                        <span className="text-gray-700 group-hover:text-gray-800">연령별승급률+베이스업</span>
+                    </label>
+                    <label className="flex items-center space-x-3 cursor-pointer group">
+                        <div className="relative">
+                            <input
+                                type="radio"
+                                name="salaryEstimationMethod"
+                                value="continuousService"
+                                checked={salaryMethod === 'continuousService'}
+                                onChange={(e) => setSalaryMethod(e.target.value)}
+                                className="hidden"
+                            />
+                            <div className="w-5 h-5 border-2 border-gray-300 rounded-full group-hover:border-gray-400">
+                                {salaryMethod === 'continuousService' && (
+                                    <div className="w-2.5 h-2.5 bg-blue-500 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
+                                )}
+                            </div>
+                        </div>
+                        <span className="text-gray-700 group-hover:text-gray-800">계속재직자법</span>
+                    </label>
+                </div>
+            </div>
+            <div className="grid grid-cols-4 gap-4 items-top">
+                <RequiredLabel htmlFor="yearsAddedOverRetirement" className="text-base font-medium text-slate-700">
+                    정년 초과자 가산연수
+                </RequiredLabel>
+                <div className="col-span-3">
+                    <InputWithError
+                        type="number"
+                        id="yearsAddedOverRetirement"
+                        name="yearsAddedOverRetirement"
+                        value={formData.yearsAddedOverRetirement}
+                        className="w-1/3"
+                    />
                 </div>
             </div>
             <div className="mt-4 flex justify-end">
