@@ -18,7 +18,7 @@ const Navigation = () => {
   const pathname = usePathname();
 
   return (
-    <nav className="bg-white shadow-sm px-4 py-3 rounded-2xl z-10">
+    <nav className="bg-white shadow-sm px-4 py-3 rounded-full z-10">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <Link href="/" className="flex items-center ml-2 font-semibold">
           <Image
@@ -34,7 +34,7 @@ const Navigation = () => {
         <div className="flex space-x-4">
           <Link
             href="/"
-            className={`px-4 py-2 rounded-full ${pathname === '/'
+            className={`px-4 py-2 rounded-full ${pathname === '/' || pathname === '/preview'
               ? 'bg-slate-900 text-white'
               : 'text-slate-600 hover:bg-slate-100'
               }`}
@@ -83,7 +83,7 @@ const Navigation = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </nav>
+    </nav >
   );
 };
 

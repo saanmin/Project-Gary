@@ -1,23 +1,53 @@
 'use client'
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
+import { RequiredLabel } from "@/components/ui/required-label";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/react";
+import { useDragDrop } from "@/hooks/useDragDrop";
 
-const FileUpload = ({ id, label, subLabel, required, dragActive, onDragEnter, onDragLeave, onDragOver, onDrop, onFileChange, uploadedFile, onDelete }) => {
+const FileUpload = ({ 
+  id, 
+  label, 
+  subLabel, 
+  required,
+  onFileChange, 
+  uploadedFile, 
+  onDelete,
+  error,
+  errorMessage 
+}) => {
   // Prevent default behavior for the entire drop zone
   const handleDragEvent = (e) => {
     e.preventDefault();
     e.stopPropagation();
   };
 
+  const handleDrop = (file) => {
+    if (file) {
+      const fakeEvent = {
+        target: {
+          files: [file]
+        }
+      };
+      onFileChange?.(fakeEvent);
+    }
+  };
+
+  const { dragActive, onDragEnter, onDragLeave, onDragOver, onDrop } = useDragDrop(handleDrop);
+
   return (
-    <div className="grid grid-cols-4 gap-4 items-top mt-4">
+    <div className="grid grid-cols-4 gap-4 items-top mt-4 mb-10">
       <div className="flex flex-col">
-        <Label htmlFor={id} className="text-base font-medium text-slate-700">
-          {label}
-          {required && <span className="text-red-500 text-sm font-medium align-top pl-1">*</span>}
-        </Label>
+        {required ? (
+          <RequiredLabel htmlFor={id} className="text-base font-medium text-slate-700">
+            {label}
+          </RequiredLabel>
+        ) : (
+          <Label htmlFor={id} className="text-base font-medium text-slate-700">
+            {label}
+          </Label>
+        )}
         {subLabel && <span className="text-sm text-slate-500">{subLabel}</span>}
       </div>
 
@@ -26,22 +56,13 @@ const FileUpload = ({ id, label, subLabel, required, dragActive, onDragEnter, on
           <div
             className={cn(
               "relative rounded-lg border-2 border-dashed p-6 transition-all",
-              dragActive ? "border-blue-500 bg-blue-50" : "border-slate-300",
+              dragActive ? "border-blue-500 bg-blue-100" : error ? "border-red-500" : "border-slate-300",
               "hover:border-blue-500"
             )}
-            onDragEnter={(e) => {
-              handleDragEvent(e);
-              onDragEnter(e);
-            }}
-            onDragLeave={(e) => {
-              handleDragEvent(e);
-              onDragLeave(e);
-            }}
-            onDragOver={handleDragEvent}
-            onDrop={(e) => {
-              handleDragEvent(e);
-              onDrop(e);
-            }}
+            onDragEnter={onDragEnter}
+            onDragLeave={onDragLeave}
+            onDragOver={onDragOver}
+            onDrop={onDrop}
           >
             <input
               type="file"
@@ -53,14 +74,17 @@ const FileUpload = ({ id, label, subLabel, required, dragActive, onDragEnter, on
             <label
               htmlFor={id}
               className="flex flex-col items-center justify-center cursor-pointer"
-              onDragOver={handleDragEvent}
             >
-              <div className="flex flex-col items-center justify-center py-2 space-y-3">
-                <Icon icon="lucide:hard-drive-upload" width="36" height="36" className="text-slate-400" />
-                <p className="my-2 text-sm text-slate-500">
-                  <span className="font-semibold">Click to upload</span> or drag and drop
-                </p>
-                <p className="text-xs text-slate-500">확장자: xlsx, xls, csv</p>
+              <div className="flex flex-col items-center justify-center pt-2 space-y-2">
+                <Button variant="secondary" type="button" onClick={() => document.getElementById(id).click()}>
+                  <Icon icon="heroicons:arrow-up-tray-20-solid" width="16" height="16" />
+                  파일 선택
+                </Button>
+                <div className="text-sm text-center space-y-2">
+                  <p className="text-slate-500">또는</p>
+                  <p className="text-slate-900">첨부할 파일을 여기에 끌어다 놓으세요</p>
+                </div>
+                <p className="pt-2 text-sm text-blue-500">xlsx, xls, csv 파일만 첨부할 수 있습니다</p>
               </div>
             </label>
           </div>
@@ -83,10 +107,13 @@ const FileUpload = ({ id, label, subLabel, required, dragActive, onDragEnter, on
                 className="text-red-500 hover:text-red-700"
                 onClick={() => onDelete(id)}
               >
-                <Icon icon="lucide:trash-2" className="w-4 h-4" />
+                <Icon icon="heroicons:trash" width="16" height="16" />
               </Button>
             </div>
           </div>
+        )}
+        {error && errorMessage && (
+          <p className="text-sm text-red-500 mt-2">{errorMessage}</p>
         )}
       </div>
     </div>

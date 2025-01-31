@@ -1,18 +1,23 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 export const useDragDrop = (onDrop) => {
   const [dragActive, setDragActive] = useState(false);
+  const dragCounter = useRef(0);
 
   const handleDragEnter = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    dragCounter.current++;
     setDragActive(true);
   };
 
   const handleDragLeave = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    setDragActive(false);
+    dragCounter.current--;
+    if (dragCounter.current === 0) {
+      setDragActive(false);
+    }
   };
 
   const handleDragOver = (e) => {
@@ -23,6 +28,7 @@ export const useDragDrop = (onDrop) => {
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    dragCounter.current = 0;
     setDragActive(false);
 
     const files = e.dataTransfer?.files || e.target.files;
