@@ -164,9 +164,9 @@ const page = () => {
     dispatch({ type: 'UPDATE_VALIDATION_ERROR', field: name, value: false });
   }, []);
 
-  const handleBondRatingChange = useCallback((value) => {
-    dispatch({ type: 'UPDATE_FORM_DATA', field: 'bondRating', value });
-    dispatch({ type: 'UPDATE_VALIDATION_ERROR', field: 'bondRating', value: false });
+  const handleCompanyBondRatingChange = useCallback((value) => {
+    dispatch({ type: 'UPDATE_FORM_DATA', field: 'companyBondRating', value });
+    dispatch({ type: 'UPDATE_VALIDATION_ERROR', field: 'companyBondRating', value: false });
   }, []);
 
   const handleDateChange = useCallback((e) => {
@@ -198,27 +198,27 @@ const page = () => {
   const handleSubmit = useCallback((e) => {
     e.preventDefault()
     console.log("Parent handleSubmit called")
-    
+
     // validation 전에 baseDate 형식 변환하지 않음
     if (validateSubmission()) {
       console.log("Validation passed")
-      
+
       // validation 통과 후 baseDate 형식 변환
       const formattedBaseDate = formData.baseDate.replace(/-/g, '')
       const updatedFormData = {
         ...formData,
         baseDate: formattedBaseDate
       }
-      
+
       // 변환된 데이터로 Context 업데이트
       Object.entries(updatedFormData).forEach(([field, value]) => {
-        dispatch({ 
-          type: 'UPDATE_FORM_DATA', 
+        dispatch({
+          type: 'UPDATE_FORM_DATA',
           field,
           value
         })
       })
-      
+
       // Preview 페이지로 이동
       router.push('/preview')
     } else {
@@ -279,7 +279,7 @@ const page = () => {
               getPreviousYearDate={getPreviousYearDate}
               setFormData={newData => dispatch({ type: 'UPDATE_FORM_DATA', ...newData })}
               validationErrors={validationErrors}
-              handleBondRatingChange={handleBondRatingChange}
+              handleBondRatingChange={handleCompanyBondRatingChange}
               handleSubmit={handleSubmit}
               className="section"
               id="baseDateInfo"

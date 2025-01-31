@@ -19,7 +19,7 @@ export const BaseDateSection = ({
     getPreviousYearDate,
     setFormData,
     validationErrors,
-    handleBondRatingChange,
+    handleCompanyBondRatingChange,
     className,
     id,
     handleSubmit
@@ -54,12 +54,12 @@ export const BaseDateSection = ({
                 </div>
                 <div className="col-span-3 relative">
                     <Select
-                        onValueChange={handleBondRatingChange}
-                        value={formData.bondRating}
+                        onValueChange={handleCompanyBondRatingChange}
+                        value={formData.companyBondRating}
                     >
                         <SelectTrigger className={cn(
                             "w-1/3",
-                            validationErrors.bondRating && formData.bondRating === "" && "!outline !outline-2 !outline-red-500 focus-visible:!ring-0"
+                            validationErrors.companyBondRating && formData.companyBondRating === "" && "!outline !outline-2 !outline-red-500 focus-visible:!ring-0"
                         )}>
                             <SelectValue placeholder="회사채 등급" />
                         </SelectTrigger>

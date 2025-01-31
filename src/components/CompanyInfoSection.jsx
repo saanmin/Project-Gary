@@ -80,7 +80,7 @@ export const CompanyInfoSection = ({
                                 <TableRow className="hover:bg-transparent">
                                     <TableHead className="w-[100px]">직군코드</TableHead>
                                     <TableHead>직군명</TableHead>
-                                    <TableHead>정년나이</TableHead>
+                                    <TableHead className="text-right">정년나이</TableHead>
                                     <TableHead className="text-right">베이스업</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -89,7 +89,7 @@ export const CompanyInfoSection = ({
                                     <TableRow key={job.jobType}>
                                         <TableCell className="font-medium">{job.jobType}</TableCell>
                                         <TableCell>{job.jobTypeName}</TableCell>
-                                        <TableCell>{job.retirementAge}</TableCell>
+                                        <TableCell className="text-right">{job.retirementAge}</TableCell>
                                         <TableCell className="text-right">{job.baseUp}%</TableCell>
                                     </TableRow>
                                 ))}

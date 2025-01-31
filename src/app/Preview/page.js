@@ -114,7 +114,7 @@ const Page = () => {
                                 <div className="grid grid-cols-4 gap-4 items-center">
                                     <label className="text-base font-medium text-slate-700">기준일</label>
                                     <div className="text-lg">
-                                        
+
                                         {(() => {
                                             const [year, month, day] = formData.baseDate.split('-')
                                             return `${year}년 ${month}월 ${day}일`
@@ -124,7 +124,7 @@ const Page = () => {
 
                                 <div className="grid grid-cols-4 gap-4 items-center">
                                     <label className="text-base font-medium text-slate-700">채권등급</label>
-                                    <div className="text-lg">{formData.bondRating}</div>
+                                    <div className="text-lg">{formData.companyBondRating}</div>
                                 </div>
                                 <div className="grid grid-cols-4 gap-4 items-center">
                                     <label className="text-base font-medium text-slate-700">기초율</label>

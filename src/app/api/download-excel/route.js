@@ -13,7 +13,7 @@ export async function POST(request) {
             ['회사명', formData.companyName],
             ['회사 유형', formData.companyType],
             ['직원 수', formData.employeeCount],
-            ['채권등급', formData.bondRating],
+            ['채권등급', formData.companyBondRating],
             ['기준일', formData.baseDate],
             // Add more rows based on your calculations
         ]

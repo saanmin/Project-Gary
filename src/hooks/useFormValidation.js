@@ -3,13 +3,13 @@ import { useCallback } from 'react';
 export const useFormValidation = (dispatch, formData, companyNameRef) => {
   const validateCompanyInfo = useCallback(() => {
     const companyNameError = !formData.companyName;
-    
+
     dispatch({
       type: 'RESET_VALIDATION_ERRORS',
       errors: {
         companyName: companyNameError,
         baseDate: false,
-        bondRating: false,
+        companyBondRating: false,
         currentYearFile: false
       }
     });
@@ -26,13 +26,13 @@ export const useFormValidation = (dispatch, formData, companyNameRef) => {
   const validateSubmission = useCallback(() => {
     const newValidationErrors = {
       baseDate: !formData.baseDate,
-      bondRating: !formData.bondRating,
+      companyBondRating: !formData.companyBondRating,
       currentYearFile: !formData.files.currentYear
     };
 
     console.log("Validation details:", {
       baseDate: formData.baseDate,
-      bondRating: formData.bondRating,
+      companyBondRating: formData.companyBondRating,
       currentYearFile: formData.files.currentYear,
       errors: newValidationErrors
     });
@@ -43,7 +43,7 @@ export const useFormValidation = (dispatch, formData, companyNameRef) => {
     });
 
     return !Object.values(newValidationErrors).some(error => error);
-  }, [formData.baseDate, formData.bondRating, formData.files.currentYear, dispatch]);
+  }, [formData.baseDate, formData.companyBondRating, formData.files.currentYear, dispatch]);
 
   return {
     validateCompanyInfo,

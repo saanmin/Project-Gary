@@ -3,10 +3,14 @@ import { getLastDayOfPreviousQuarter } from "@/utils/dateUtils";
 export const initialState = {
   formData: {
     companyName: '',
-    jobType: '',
     baseDate: getLastDayOfPreviousQuarter(),
-    bondRating: '',
-    useStandardRate: true,
+    companyBondRating: '',
+    salaryEstimationMethod: 1,
+    yearsAddedOverRetirement: 0,
+    jobTypeInfo: '',
+    // jobType: '',
+    isUnder300Employees: 1,
+    // useStandardRate: true, 
     files: {
       currentYear: null,
       previousYear: null,
@@ -17,7 +21,7 @@ export const initialState = {
   validationErrors: {
     companyName: false,
     baseDate: false,
-    bondRating: false,
+    companyBondRating: false,
     currentYearFile: false
   },
   dateError: false,
