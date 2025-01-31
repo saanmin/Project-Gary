@@ -158,20 +158,26 @@ const page = () => {
     }
   }, [showNextSection]);
 
+  const updateValidationError = useCallback((field, hasError) => {
+    dispatch({
+      type: 'UPDATE_VALIDATION_ERROR',
+      field,
+      value: hasError
+    });
+  }, [dispatch]);
+
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     dispatch({ type: 'UPDATE_FORM_DATA', field: name, value });
-    dispatch({ type: 'UPDATE_VALIDATION_ERROR', field: name, value: false });
-  }, []);
 
-  const handleCompanyBondRatingChange = useCallback((value) => {
-    dispatch({ type: 'UPDATE_FORM_DATA', field: 'companyBondRating', value });
-    dispatch({ type: 'UPDATE_VALIDATION_ERROR', field: 'companyBondRating', value: false });
-  }, []);
+    // 에러가 있었다면 초기화
+    if (validationErrors[name]) {
+      updateValidationError(name, false);
+    }
+  }, [dispatch, validationErrors, updateValidationError]);
 
   const handleDateChange = useCallback((e) => {
     const value = e.target.value;
-    console.log("Date changed:", value);
     dispatch({ type: 'UPDATE_FORM_DATA', field: 'baseDate', value });
 
     if (value.length === 10) { // YYYY-MM-DD 형식일 때
@@ -180,7 +186,7 @@ const page = () => {
     } else {
       dispatch({ type: 'SET_DATE_ERROR', value: false });
     }
-  }, []);
+  }, [dispatch]);
 
   const handleFileUpload = useCallback((e, fileType) => {
     const file = e?.target?.files?.[0] || null;
@@ -193,79 +199,94 @@ const page = () => {
         value: !file
       });
     }
-  }, []);
+  }, [dispatch]);
+
+  const handleCompanyBondRatingChange = useCallback((value) => {
+    dispatch({ type: 'UPDATE_FORM_DATA', field: 'companyBondRating', value });
+    dispatch({ type: 'UPDATE_VALIDATION_ERROR', field: 'companyBondRating', value: false });
+  }, [dispatch]);
 
   const handleSubmit = useCallback((e) => {
-    e.preventDefault()
-    console.log("Parent handleSubmit called")
+    e.preventDefault();
 
-    // validation 전에 baseDate 형식 변환하지 않음
     if (validateSubmission()) {
-      console.log("Validation passed")
-
-      // validation 통과 후 baseDate 형식 변환
-      const formattedBaseDate = formData.baseDate.replace(/-/g, '')
+      // Create a copy of formData without modifying the original state
       const updatedFormData = {
         ...formData,
-        baseDate: formattedBaseDate
-      }
+        // Store timestamp in a separate field if needed
+        baseDateTimestamp: new Date(formData.baseDate).getTime()
+      };
 
-      // 변환된 데이터로 Context 업데이트
       Object.entries(updatedFormData).forEach(([field, value]) => {
         dispatch({
           type: 'UPDATE_FORM_DATA',
           field,
           value
-        })
-      })
+        });
+      });
 
-      // Preview 페이지로 이동
-      router.push('/preview')
-    } else {
-      console.log("Validation failed")
+      router.push('/preview');
     }
-  }, [formData, validateSubmission, dispatch, router])
+  }, [formData, validateSubmission, dispatch, router]);
+
+  const handleContinue = useCallback(() => {
+    if (validateCompanyInfo()) {
+      dispatch({ type: 'SET_SHOW_NEXT_SECTION', value: true });
+      dispatch({ type: 'SET_COMPANY_INFO_DISABLED', value: true });
+      dispatch({ type: 'SET_ACTIVE_SECTION', value: 'baseDate' });
+    }
+  }, [dispatch, validateCompanyInfo]);
+
+  const handleBack = useCallback(() => {
+    dispatch({ type: 'SET_SHOW_NEXT_SECTION', value: false });
+    dispatch({ type: 'SET_COMPANY_INFO_DISABLED', value: false });
+    dispatch({ type: 'SET_ACTIVE_SECTION', value: 'companyInfo' });
+  }, [dispatch]);
 
   return (
-    <div className="flex min-h-screen relative">
-      {/* Left side - Steps */}
-      <div className="w-64 px-8 py-10 border-r border-slate-200 sticky top-0 h-screen">
-        <div className="sticky top-10 space-y-4">
-          <div className={cn("flex items-center space-x-2", {
-            'opacity-100': activeSection === 'companyInfo',
-            'opacity-40': activeSection !== 'companyInfo'
-          })}>
-            <div className={cn("w-6 h-6 rounded-full flex items-center justify-center text-white text-sm", {
-              'bg-slate-800': activeSection === 'companyInfo',
-              'bg-slate-300': activeSection !== 'companyInfo'
-            })}>1</div>
-            <span className="text-sm font-medium">회사 정보 입력</span>
+    <>
+      {/* <div className="sticky top-8 space-y-4">
+        <div className={cn("flex items-center space-x-2", {
+          'opacity-100': !isCompanyInfoDisabled,
+          'opacity-40': isCompanyInfoDisabled
+        })}>
+          <div className={cn("w-6 h-6 rounded-full flex items-center justify-center text-white text-sm text-center", {
+            'bg-slate-800': !isCompanyInfoDisabled,
+            'bg-slate-300': isCompanyInfoDisabled,
+          })}>1</div>
+          <span className="font-medium">회사 정보 입력</span>
           </div>
           <div className={cn("flex items-center space-x-2", {
-            'opacity-100': activeSection === 'baseDateInfo',
-            'opacity-40': activeSection !== 'baseDateInfo'
-          })}>
-            <div className={cn("w-6 h-6 rounded-full flex items-center justify-center text-sm", {
-              'bg-slate-800 text-white': activeSection === 'baseDateInfo',
-              'bg-slate-100 text-slate-500': activeSection !== 'baseDateInfo'
+          'opacity-100': isCompanyInfoDisabled,
+          'opacity-40': !isCompanyInfoDisabled
+        })}>
+          <div className={cn("w-6 h-6 rounded-full flex items-center justify-center text-sm text-center", {
+            'bg-slate-800 text-white': isCompanyInfoDisabled,
+            'bg-slate-100 text-slate-500': !isCompanyInfoDisabled,
             })}>2</div>
-            <span className="text-sm font-medium">기준일 정보 입력</span>
-          </div>
-        </div>
-      </div>
+            <span className="font-medium">기준일 정보 입력</span>
+            </div>
+            </div> */}
 
-      {/* Right side - Form */}
-      <div className="flex-1 px-8 py-10">
-        <form onSubmit={handleSubmit} className="max-w-3xl space-y-8">
+      <form onSubmit={(e) => e.preventDefault()}>
+        <div className="grid grid-cols-[16rem_1fr] px-8 min-h-screen relative">
           <CompanyInfoSection
             formData={formData}
             handleChange={handleChange}
             validationErrors={validationErrors}
-            onContinue={validateCompanyInfo}
-            setValidationErrors={errors => dispatch({ type: 'RESET_VALIDATION_ERRORS', errors })}
+            onContinue={handleContinue}
+            setValidationErrors={(field, value) => dispatch({
+              type: 'UPDATE_VALIDATION_ERROR',
+              field,
+              value
+            })}
             isDisabled={isCompanyInfoDisabled}
             companyNameRef={companyNameRef}
-            className="section"
+            className={cn(
+              "transition-opacity duration-500",
+              !showNextSection && "opacity-100",
+              showNextSection && "opacity-60"
+            )}
             id="companyInfo"
           />
 
@@ -277,17 +298,17 @@ const page = () => {
               dragDropProps={dragDropProps}
               handleFileUpload={handleFileUpload}
               getPreviousYearDate={getPreviousYearDate}
-              setFormData={newData => dispatch({ type: 'UPDATE_FORM_DATA', ...newData })}
               validationErrors={validationErrors}
-              handleBondRatingChange={handleCompanyBondRatingChange}
+              handleCompanyBondRatingChange={handleCompanyBondRatingChange}
               handleSubmit={handleSubmit}
+              handleBack={handleBack}
               className="section"
               id="baseDateInfo"
             />
           )}
-        </form>
-      </div>
-    </div>
+        </div>
+      </form>
+    </>
   );
 };
 

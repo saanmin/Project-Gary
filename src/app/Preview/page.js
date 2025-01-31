@@ -3,13 +3,16 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useState } from 'react'
 import { useFormContext } from '@/contexts/FormContext'
+import { useRouter } from 'next/navigation'
 import { Icon } from "@iconify/react"
+import LabelValuePair from "@/components/LabelValuePair";
 
 const Page = () => {
     const [isProcessing, setIsProcessing] = useState(false)
     const [isDownloadReady, setIsDownloadReady] = useState(false)
     const { state } = useFormContext()
     const formData = state.formData
+    const router = useRouter()
 
     const handleSubmit = async () => {
         setIsProcessing(true)
@@ -63,82 +66,69 @@ const Page = () => {
             alert('파일 다운로드 중 오류가 발생했습니다.')
         }
     }
-
+    const SectionHeader = ({ icon, title }) => (
+        <div className="flex items-start gap-2 pt-8">
+            <Icon icon={icon} width="18" height="18" className="mt-1" />
+            <h2 className="text-lg font-medium">{title}</h2>
+        </div>
+    );
     return (
-        <div className="flex min-h-screen relative">
-            {/* Left side - Steps */}
-            <div className="w-64 px-8 py-10 border-r border-slate-200 sticky top-0 h-screen">
-                <div className="sticky top-10 space-y-4">
-                    <div className="flex items-center space-x-2 opacity-100">
-                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-sm bg-slate-800">1</div>
-                        <span className="text-sm font-medium">회사 정보</span>
-                    </div>
-                    <div className="flex items-center space-x-2 opacity-100">
-                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-sm bg-slate-800 text-white">2</div>
-                        <span className="text-sm font-medium">기준일 정보</span>
-                    </div>
+        <section className="grid grid-cols-[16rem_1fr] px-8">
+
+            {/* Header */}
+            <header className="grid grid-cols-subgrid col-span-2 gap-y-8">
+                <h1 className="text-2xl font-semibold pt-8">입력 내용 확인</h1>
+                <div className="max-w-[48rem] border-l border-slate-200 space-y-10 pl-8 pt-8"></div>
+            </header>
+
+            {/* Company Info Grid */}
+            <section className="grid grid-cols-subgrid col-span-2 gap-y-8">
+                <SectionHeader icon="heroicons:building-office-2" title="회사 정보" />
+
+                <div className="max-w-[48rem] border-l border-slate-200 pl-8 pt-8 space-y-6">
+                    <LabelValuePair label="회사명" value={formData.companyName} />
+                    <LabelValuePair label="임금상승률 적용방식" value={formData.salaryEstimationMethod !== 1 ? '계속재직자법' : '연령별승급률+베이스업'} />
+                    <LabelValuePair label="정년 초과자 가산연수" value={formData.yearsAddedOverRetirement} />
                 </div>
-            </div>
+            </section>
 
-            {/* Right side - Content */}
-            <div className="flex-1 px-8 py-10">
-                <div className="max-w-3xl space-y-8">
-                    <h1 className="text-2xl font-semibold">입력 내용 확인</h1>
+            {/* Base Date Grid */}
+            <section className="grid grid-cols-subgrid col-span-2 gap-y-8">
+                <SectionHeader icon="heroicons:calendar-days" title="기준일 정보" />
 
-                    {/* Company Info Section */}
-                    <section className="space-y-6">
-                        <div className="flex items-center gap-2">
-                            <Icon icon="heroicons:building-office-2" width="18" height="18" />
-                            <h2 className="text-lg font-medium">회사 정보</h2>
-                        </div>
+                <div className="max-w-[48rem] border-l border-slate-200 pl-8 pt-8 space-y-6">
+                    <LabelValuePair label="기준일" value={`${formData.baseDate.split('-')[0]}년 ${formData.baseDate.split('-')[1]}월 ${formData.baseDate.split('-')[2]}일`} />
+                    <LabelValuePair label="채권등급" value={formData.companyBondRating} />
+                    <LabelValuePair label="기초율" value={formData.useStandardRate ? '표준율' : '경험률'} />
+                    <LabelValuePair label="당기 재직자 명부" value={<div className="flex items-center gap-2">
 
-                        <div className="space-y-4">
-                            <div className="space-y-6">
-                                <div className="grid grid-cols-4 gap-4 items-center">
-                                    <label className="text-base font-medium text-slate-700">회사명</label>
-                                    <div className="text-lg">{formData.companyName}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
+                        {formData.files.currentYear ? (
 
-                    {/* Base Date Section */}
-                    <section className="space-y-6">
-                        <div className="flex items-center gap-2">
-                            <Icon icon="heroicons:calendar-days" width="18" height="18" />
-                            <h2 className="text-lg font-medium">기준일 정보</h2>
-                        </div>
+                            <>
+                                <Icon icon="vscode-icons:file-type-excel" width="16" height="16" />
+                                <span>{formData.files.currentYear.name}</span>
+                            </>
+                        ) : (
+                            <span className="text-slate-500">N/A</span>
+                        )}
+                    </div>} />
+                </div>
+            </section>
 
-                        <div className="space-y-4">
-                            <div className="space-y-6">
-                                <div className="grid grid-cols-4 gap-4 items-center">
-                                    <label className="text-base font-medium text-slate-700">기준일</label>
-                                    <div className="text-lg">
+            {/* Submit and Download Buttons */}
+            <section className="grid grid-cols-subgrid col-span-2">
+                <div></div>
 
-                                        {(() => {
-                                            const [year, month, day] = formData.baseDate.split('-')
-                                            return `${year}년 ${month}월 ${day}일`
-                                        })()}
-                                    </div>
-                                </div>
 
-                                <div className="grid grid-cols-4 gap-4 items-center">
-                                    <label className="text-base font-medium text-slate-700">채권등급</label>
-                                    <div className="text-lg">{formData.companyBondRating}</div>
-                                </div>
-                                <div className="grid grid-cols-4 gap-4 items-center">
-                                    <label className="text-base font-medium text-slate-700">기초율</label>
-                                    <div className="text-lg">
-                                        {formData.useStandardRate ? '표준율' : '경험률'}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Submit and Download Buttons */}
-                    <div className="flex justify-end mt-8 space-x-4">
-                        {!isDownloadReady && (
+                <div className="flex justify-end items-center gap-4 max-w-[48rem] border-l border-slate-200 pl-8 pt-8 pb-10">
+                    {!isDownloadReady && (
+                        <>
+                            <Button
+                                variant="outline"
+                                onClick={() => router.push('/')}
+                            >
+                                이전으로
+                            </Button>
                             <Button
                                 onClick={handleSubmit}
                                 disabled={isProcessing}
@@ -149,26 +139,30 @@ const Page = () => {
                                     {isProcessing ? '처리 중...' : '제출하기'}
                                 </span>
                             </Button>
-                        )}
+                        </>
 
-                        {isDownloadReady && (
-                            <div className="flex justify-end items-center gap-4">
-                                <div className="text-sm text-muted-foreground">
-                                    output.xlsx
-                                </div>
-                                <Button
-                                    onClick={handleDownload}
-                                    className="bg-green-600 text-white hover:bg-green-500 flex items-center gap-2"
-                                >
-                                    <Icon icon="heroicons:arrow-down-tray-20-solid" width="16" height="16" />
-                                    엑셀 파일 다운로드
-                                </Button>
+                    )}
+
+                    {isDownloadReady && (
+                        <div className="flex justify-end items-center gap-4">
+                            <div className="text-sm text-muted-foreground">
+                                output.xlsx
                             </div>
-                        )}
-                    </div>
+                            <Button
+                                onClick={handleDownload}
+                                className="bg-green-600 text-white hover:bg-green-500 flex items-center gap-2"
+                            >
+                                <Icon icon="heroicons:arrow-down-tray-20-solid" width="16" height="16" />
+                                엑셀 파일 다운로드
+                            </Button>
+                        </div>
+                    )}
                 </div>
-            </div>
-        </div>
+
+
+            </section>
+        </section >
+
     )
 }
 

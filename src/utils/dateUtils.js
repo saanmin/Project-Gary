@@ -16,7 +16,7 @@ export const getPreviousYearDate = (dateString, yearsBack = 1) => {
   }
 
   try {
-    const dateStringNoSpace = dateString.replace(/\s/g, '');
+    const dateStringNoSpace = dateString.replace(/[\s_]/g, '');
     const [year, month, day] = dateStringNoSpace.split('-');
 
     if (!year || !month || !day) {

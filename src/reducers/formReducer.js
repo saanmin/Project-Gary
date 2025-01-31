@@ -8,9 +8,8 @@ export const initialState = {
     salaryEstimationMethod: 1,
     yearsAddedOverRetirement: 0,
     jobTypeInfo: '',
-    // jobType: '',
     isUnder300Employees: 1,
-    // useStandardRate: true, 
+    useStandardRate: true,
     files: {
       currentYear: null,
       previousYear: null,
@@ -50,13 +49,11 @@ export const formReducer = (state, action) => {
             ...state.formData.files,
             [action.fileType]: action.file
           }
-        }
-      };
-
-    case 'SET_DATE_ERROR':
-      return {
-        ...state,
-        dateError: action.value
+        },
+        validationErrors: action.fileType === 'currentYear' ? {
+          ...state.validationErrors,
+          currentYearFile: !action.file
+        } : state.validationErrors
       };
 
     case 'UPDATE_VALIDATION_ERROR':
@@ -68,20 +65,33 @@ export const formReducer = (state, action) => {
         }
       };
 
-    case 'SET_SHOW_NEXT_SECTION':
-      return {
-        ...state,
-        showNextSection: action.value,
-        isCompanyInfoDisabled: action.value
-      };
-
     case 'RESET_VALIDATION_ERRORS':
       return {
         ...state,
-        validationErrors: {
-          ...state.validationErrors,
-          ...action.errors
+        validationErrors: action.errors || {
+          companyName: false,
+          baseDate: false,
+          companyBondRating: false,
+          currentYearFile: false
         }
+      };
+
+    case 'SET_DATE_ERROR':
+      return {
+        ...state,
+        dateError: action.value
+      };
+
+    case 'SET_SHOW_NEXT_SECTION':
+      return {
+        ...state,
+        showNextSection: action.value
+      };
+
+    case 'SET_COMPANY_INFO_DISABLED':
+      return {
+        ...state,
+        isCompanyInfoDisabled: action.value
       };
 
     case 'SET_ACTIVE_SECTION':
