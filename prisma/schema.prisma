@@ -16,6 +16,7 @@ model PensionCompanyInfo {
   yearsAddedOverRetirement Int?                  @map("years_added_over_retirement") @db.SmallInt
   isUnder300Employees      Int                   @map("is_under_300_employees") @db.SmallInt
   useStandardRate          Boolean               @default(true) @map("use_standard_rate") @db.Bit
+  createdAt                DateTime              @default(now()) @map("created_at") @db.DateTime
   employeeInfo             PensionEmployeeInfo[]
   jobTypeInfo              PensionJobTypeInfo[]
 
