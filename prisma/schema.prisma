@@ -8,12 +8,14 @@ datasource db {
 }
 
 model PensionCompanyInfo {
+  companyId                Int                   @default(autoincrement()) @map("company_id")
   companyName              String                @map("company_name") @db.NVarChar(50)
-  baseDate                 Date                  @map("base_date") @db.Date
+  baseDate                 DateTime                  @map("base_date") @db.Date
   companyBondRating        String                @map("company_bond_rating") @db.NVarChar(50)
   salaryEstimationMethod   Int                   @map("salary_estimation_method") @db.SmallInt
   yearsAddedOverRetirement Int?                  @map("years_added_over_retirement") @db.SmallInt
   isUnder300Employees      Int                   @map("is_under_300_employees") @db.SmallInt
+  useStandardRate          Boolean               @default(true) @map("use_standard_rate") @db.Bit
   employeeInfo             PensionEmployeeInfo[]
   jobTypeInfo              PensionJobTypeInfo[]
 
@@ -23,7 +25,7 @@ model PensionCompanyInfo {
 
 model PensionJobTypeInfo {
   companyName   String                @map("company_name") @db.NVarChar(50)
-  baseDate      Date                  @map("base_date") @db.Date
+  baseDate      DateTime                  @map("base_date") @db.Date
   jobType       Int                   @map("job_type") @db.SmallInt
   jobTypeName   String                @map("job_type_name") @db.NVarChar(50)
   retirementAge Int                   @map("retirement_age") @db.SmallInt
@@ -37,12 +39,12 @@ model PensionJobTypeInfo {
 
 model PensionEmployeeInfo {
   companyName           String             @map("company_name") @db.NVarChar(50)
-  baseDate              Date               @map("base_date") @db.Date
+  baseDate              DateTime               @map("base_date") @db.Date
   employeeId            String             @map("employee_id") @db.NVarChar(50)
   gender                Int                @map("gender") @db.SmallInt
-  birthDate             Date               @map("birth_date") @db.Date
-  hireDate              Date               @map("hire_date") @db.Date
-  calculationStartDate  Date               @map("calculation_start_date") @db.Date
+  birthDate             DateTime               @map("birth_date") @db.Date
+  hireDate              DateTime               @map("hire_date") @db.Date
+  calculationStartDate  DateTime               @map("calculation_start_date") @db.Date
   averageSalary         Decimal            @map("average_salary") @db.Decimal(12, 2)
   jobType               Int                @map("job_type") @db.SmallInt
   paymentMultiplier     Decimal            @map("payment_multiplier") @db.Decimal(5, 2)
@@ -55,7 +57,7 @@ model PensionEmployeeInfo {
 }
 
 model PensionFinancialAssumption {
-  assumptionBaseDate Date     @map("assumption_base_date") @db.Date
+  assumptionBaseDate DateTime     @map("assumption_base_date") @db.Date
   bondType           String   @map("bond_type") @db.NVarChar(50)
   bondRating         String   @map("bond_rating") @db.NVarChar(50)
   maturity           Decimal  @map("maturity") @db.Decimal(5, 2)
@@ -66,7 +68,7 @@ model PensionFinancialAssumption {
 }
 
 model PensionDemographicAssumption {
-  assumptionBaseDate    Date     @map("assumption_base_date") @db.Date
+  assumptionBaseDate    DateTime     @map("assumption_base_date") @db.Date
   demographicAssumption String   @map("demographic_assumption") @db.NVarChar(50)
   age                   Int      @map("age") @db.SmallInt
   demographicRate       Decimal  @map("demographic_rate") @db.Decimal(7, 5)

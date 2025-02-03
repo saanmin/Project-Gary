@@ -17,7 +17,8 @@ const Page = () => {
     const handleSubmit = async () => {
         setIsProcessing(true)
         try {
-            const response = await fetch('/api/generate-excel', {
+            // const response = await fetch('/api/generate-excel', {
+            const response = await fetch('/api/pension/company', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -26,12 +27,12 @@ const Page = () => {
             })
 
             if (!response.ok) {
-                throw new Error('Failed to process data')
+                throw new Error('제출 실패')
             }
 
             setIsDownloadReady(true)
         } catch (error) {
-            console.error('Error processing data:', error)
+            console.error('제출 실패:', error)
             alert('데이터 처리 중 오류가 발생했습니다.')
         } finally {
             setIsProcessing(false)
