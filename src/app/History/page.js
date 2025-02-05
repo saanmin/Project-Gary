@@ -73,7 +73,7 @@ export default function HistoryPage() {
     )
     .sort((a, b) => {
       if (sortOrder === 'date') {
-        return new Date(b.baseDate) - new Date(a.baseDate)
+        return new Date(b.createdAt) - new Date(a.createdAt)
       }
       return a.companyName.localeCompare(b.companyName)
     })
@@ -93,10 +93,6 @@ export default function HistoryPage() {
             />
             <Icon icon="heroicons:magnifying-glass-20-solid" width="16" height="16"
               className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            {/* <Icon
-              icon="material-symbols:search"
-              className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400"
-            /> */}
           </div>
           <Select
             value={sortOrder}
@@ -106,7 +102,7 @@ export default function HistoryPage() {
               <SelectValue placeholder="정렬 방식" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="date">날짜순</SelectItem>
+              <SelectItem value="date">생성일순</SelectItem>
               <SelectItem value="name">회사명순</SelectItem>
             </SelectContent>
           </Select>
@@ -116,7 +112,7 @@ export default function HistoryPage() {
       <div className="space-y-4">
         {filteredSubmissions.map((submission) => (
           <Card
-            key={submission.companyName}
+            key={submission.companyId}
             className="hover:bg-accent transition-colors cursor-pointer"
             onClick={() => handleViewDetails(submission.companyName)}
           >
@@ -128,6 +124,10 @@ export default function HistoryPage() {
                   <span className="text-sm font-semibold text-slate-700 pr-3">기준일자</span>
                   <p className="text-muted-foreground">
                     {new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: '2-digit' }).format(new Date(submission.baseDate))}
+                  </p>
+                  <span className="text-sm font-semibold text-slate-700 pr-3">생성일자</span>
+                  <p className="text-muted-foreground">
+                    {new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: '2-digit' }).format(new Date(submission.createdAt))}
                   </p>
                 </div>
                 <Button variant="link" className="text-blue-500 gap-1">
