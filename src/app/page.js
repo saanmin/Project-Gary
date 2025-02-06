@@ -1,5 +1,5 @@
 'use client'
-import InputPage from '@/app/Input/page'
+import InputPage from '@/app/input/page'
 
 export default function Home() {
   return (
