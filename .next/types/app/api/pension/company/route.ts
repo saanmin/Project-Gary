@@ -1,4 +1,4 @@
-// File: C:\Users\skim590\Documents\Code\05.ProjectG\src\app\api\pension\company\route.js
+// File: C:\Users\skim590\Documents\Code\07.httpsaeztoaiyadwa001.scm.azurewebsites.net\250206\AEZTOAIYADWA001\src\app\api\pension\company\route.js
 import * as entry from '../../../../../../src/app/api/pension/company/route.js'
 import type { NextRequest } from 'next/server.js'
 

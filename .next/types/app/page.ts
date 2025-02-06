@@ -1,4 +1,4 @@
-// File: C:\Users\skim590\Documents\Code\05.ProjectG\src\app\page.js
+// File: C:\Users\skim590\Documents\Code\07.httpsaeztoaiyadwa001.scm.azurewebsites.net\250206\AEZTOAIYADWA001\src\app\page.js
 import * as entry from '../../../src/app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
