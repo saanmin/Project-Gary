@@ -14,7 +14,7 @@
 /coverage
 
 # next.js
-# /.next/
+# /.next/    #comment when azure-deployment
 /out/
 
 # production

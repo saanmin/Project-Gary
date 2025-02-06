@@ -1,4 +1,14 @@
 {
+  "/api/generate-excel/route": "app/api/generate-excel/route.js",
   "/_not-found/page": "app/_not-found/page.js",
-  "/page": "app/page.js"
+  "/api/pension/company/route": "app/api/pension/company/route.js",
+  "/api/submissions/route": "app/api/submissions/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/api/download-excel/route": "app/api/download-excel/route.js",
+  "/api/submit-form/route": "app/api/submit-form/route.js",
+  "/page": "app/page.js",
+  "/history/page": "app/history/page.js",
+  "/pension/company/page": "app/pension/company/page.js",
+  "/input/page": "app/input/page.js",
+  "/preview/page": "app/preview/page.js"
 }
